@@ -102,7 +102,12 @@ func runWatcher(appMode, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
 
 			err = core.CreateDirectory(basePath, usersList, userListID)
 			if err != nil {
-				log.Printf("can not create directory; err: %s", err.Error())
+				// log.Printf("can not create directory; err: %s", err.Error())
+				if err.Error() == "file exists" {
+					continue
+				} else {
+					log.Printf("can not create directory; err: %s", err.Error())
+				}
 			}
 
 			/* Удаление папки */
