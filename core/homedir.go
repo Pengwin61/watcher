@@ -26,7 +26,10 @@ func CreateDirectory(basePath string, users []string, employeeList map[string]in
 		fullPathUser := filepath.Join(basePath, user)
 
 		err = os.Mkdir(fullPathUser, 0700)
-		if err != nil && !os.IsExist(err) {
+		if os.IsExist(err) {
+			return nil
+		}
+		if err != nil {
 			return err
 		}
 	}
