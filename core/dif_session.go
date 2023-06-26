@@ -15,7 +15,7 @@ var isExpired bool
 func DiffSession(x2gosession map[string]*connectors.User,
 	udssession map[string]db.UserService,
 	conPg *db.ClientPg, conSsh *connectors.Client,
-	actorsList map[string]string) error {
+	actorsList map[string]string, domain string) error {
 
 	var err error
 
@@ -33,9 +33,11 @@ func DiffSession(x2gosession map[string]*connectors.User,
 				if val, ok := udssession[session]; ok {
 					// fmt.Println("IN PG", "val:", val, ok)
 
-					if checkHostMatches(v.Hostname, val.DepSvcName) {
+					if checkHostMatches(v.Hostname, val.DepSvcName, domain) {
 						// fmt.Println(v.Hostname) //mk0vm1032.bosch-ru.ru
-						hostname := strings.TrimRight(v.Hostname, ".bosch-ru")
+						domain = fmt.Sprintf("." + domain)
+
+						hostname := strings.TrimRight(v.Hostname, domain)
 
 						if host, ok := actorsList[hostname]; ok {
 							// fmt.Println("ActorList:",actorsList, "HOST:", host )
@@ -105,8 +107,8 @@ func checkExpiration(t string) bool {
 	return false
 }
 
-func checkHostMatches(hostname, depSvcName string) bool {
-	hostname = strings.TrimRight(hostname, ".bosch-ru")
+func checkHostMatches(hostname, depSvcName, domain string) bool {
+	hostname = strings.TrimRight(hostname, domain)
 	depSvcName = strings.TrimLeft(depSvcName, "s-")
 
 	if strings.EqualFold(depSvcName, hostname) {

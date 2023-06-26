@@ -38,7 +38,10 @@ func main() {
 
 	flag.Parse()
 	/* settings.cfg */
+
 	mode := cfg.Section("").Key("app_mode").String()
+	domain := cfg.Section("").Key("domain").String()
+
 	pathFlag := cfg.Section("paths").Key("home_dir").String()
 	daysRotation := cfg.Section("paths").Key("home_dir_days_rotation").String()
 	logsPath := cfg.Section("paths").Key("logs").String()
@@ -75,13 +78,13 @@ func main() {
 
 
 	 */
-	runWatcher(mode, basePath, daysRotation, *softQuotaFlag, *hardQuotaFlag,
+	runWatcher(mode, domain, basePath, daysRotation, *softQuotaFlag, *hardQuotaFlag,
 		hostIpa, userIpa, userpassIpa, groudIpa, actorsUser,
 		actorsPaswd, schedule)
 }
 
 // Start Programm
-func runWatcher(appMode, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
+func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
 	hostIpa, userIpa, ipaPasswdFlag, groudIpa,
 	actorsUser, actorsPaswd string, schedule time.Duration) []string {
 
@@ -148,7 +151,7 @@ func runWatcher(appMode, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
 				log.Fatalf("can not; err: %s", err.Error())
 			}
 
-			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList)
+			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList, domain)
 			if err != nil {
 				log.Fatal("can not:", err.Error())
 			}
