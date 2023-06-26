@@ -50,11 +50,11 @@ func DiffSession(x2gosession map[string]*connectors.User,
 						}
 					}
 				} else {
-					fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!")
+					log.Println("!!!!!!!!!!!!!!!!!!!!!!!!")
 				}
 			}
 		} else {
-			fmt.Printf("X2GO RUN SESSION: | %s | %s | %s | %s | %s |\n",
+			log.Printf("X2GO RUN SESSION: | %s | %s | %s | %s | %s |\n",
 				v.UserSession, v.SessionState, v.Hostname, v.StartDateSession, v.StopDateSession)
 		}
 

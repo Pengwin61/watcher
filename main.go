@@ -82,6 +82,14 @@ func runWatcher(appMode, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
 
 		if appMode == "production" {
 			// log.Println("APP MODE:", appMode)
+
+			actorsList, err := conPg.GetEntity("uds_actortoken")
+			if err != nil {
+				log.Fatalf("can not get list actors: %s", err.Error())
+			}
+
+			//
+			//
 			usersList, err := c.GetUser(groudIpa)
 			if err != nil {
 				log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
@@ -103,17 +111,6 @@ func runWatcher(appMode, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
 				log.Printf("can not delete directory; err: %s", err.Error())
 			}
 
-			//core.SetQuota(softQuotaFlag, hardQuotaFlag, *userList)
-
-		} else {
-
-			log.Println("APP MODE:", appMode)
-
-			actorsList, err := conPg.GetEntity("uds_actortoken")
-			if err != nil {
-				log.Fatalf("can not get list actors: %s", err.Error())
-			}
-
 			sshstdout := conSSH.ConnectHost("x2golistsessions_root", actorsList)
 
 			x2gosession, err := connectors.GetSessionX2go(sshstdout)
@@ -131,6 +128,11 @@ func runWatcher(appMode, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
 			if err != nil {
 				log.Fatal("can not:", err.Error())
 			}
+			//core.SetQuota(softQuotaFlag, hardQuotaFlag, *userList)
+
+		} else {
+
+			log.Println("APP MODE:", appMode)
 
 		}
 
