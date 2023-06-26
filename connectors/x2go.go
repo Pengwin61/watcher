@@ -44,7 +44,6 @@ func GetSessionX2go(stdout string) (map[string]*User, error) {
 
 	chunks, err := chunk(slc, 16)
 	if err != nil {
-		// panic(err.Error())
 		return nil, err
 	}
 
@@ -75,9 +74,6 @@ func GetSessionX2go(stdout string) (map[string]*User, error) {
 }
 
 func (c *Client) TerminateSession(sessionPid, host, cmd string, conssh *Client) {
-	// cmd = fmt.Sprint(cmd + " " + sessionPid)
-
-	// fmt.Println("CMD:", cmd, "HOST:", host)
 
 	hostsList := make(map[string]string)
 	hostsList[host] = host

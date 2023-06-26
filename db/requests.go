@@ -78,10 +78,7 @@ func (c *ClientPg) GetEntity(entity string) (map[string]string, error) {
 func (c *ClientPg) UpdateTab(User_service_id int) error {
 	_, err := c.condb.Exec("update public.uds__user_service set state = $1, in_use= $2 where id = $3",
 		"S", "false", User_service_id)
-	// if err != nil {
-	// 	return err
-	// }
-	// fmt.Println("database entry deleted:", User_service_id)
+
 	return err
 }
 

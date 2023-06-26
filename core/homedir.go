@@ -53,7 +53,6 @@ func DirExpired(basePath string, daysRotation string, usersList []string) error 
 
 	days, err := strconv.Atoi(daysRotation)
 	if err != nil {
-		// log.Println(err)
 		return err
 	}
 
