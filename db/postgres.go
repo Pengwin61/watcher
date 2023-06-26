@@ -53,7 +53,7 @@ func ConnectDB(host, port, user, password, dbname string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Successfully connected!")
+	log.Println("Successfully connected to", host)
 	return db, nil
 }
 

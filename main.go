@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 	"watcher/authenticators"
 	"watcher/connectors"
@@ -40,6 +42,7 @@ func main() {
 	mode := cfg.Section("").Key("app_mode").String()
 	pathFlag := cfg.Section("paths").Key("home_dir").String()
 	daysRotation := cfg.Section("paths").Key("home_dir_days_rotation").String()
+	logsPath := cfg.Section("paths").Key("logs").String()
 
 	hostIpa := cfg.Section("FreeIpa").Key("host").String()
 	userIpa := cfg.Section("FreeIpa").Key("username").String()
@@ -52,6 +55,27 @@ func main() {
 	schedule, _ := time.ParseDuration(*scheduleFlag)
 	basePath := core.CreatePath(pathFlag)
 
+	//
+
+	/*
+	   Logging
+	*/
+	f, err := os.OpenFile(logsPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+	wrt := io.MultiWriter(os.Stdout, f)
+	log.SetOutput(wrt)
+
+	/*
+
+
+
+
+
+
+	 */
 	runWatcher(mode, basePath, daysRotation, *softQuotaFlag, *hardQuotaFlag,
 		hostIpa, userIpa, userpassIpa, groudIpa, actorsUser,
 		actorsPaswd, schedule)
@@ -103,7 +127,7 @@ func runWatcher(appMode, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
 			err = core.CreateDirectory(basePath, usersList, userListID)
 			if err != nil {
 				// log.Printf("can not create directory; err: %s", err.Error())
-				if err.Error() == "file exists" {
+				if !strings.Contains(err.Error(), "file exists") {
 					continue
 				} else {
 					log.Printf("can not create directory; err: %s", err.Error())
