@@ -25,9 +25,12 @@ func CreateDirectory(basePath string, users []string, employeeList map[string]in
 	for _, user := range userlist {
 		fullPathUser := filepath.Join(basePath, user)
 
-		err = os.Mkdir(fullPathUser, 0700)
-		if err != nil && !os.IsExist(err) {
-			return err
+		if _, err := os.Stat(fullPathUser); os.IsNotExist(err) {
+
+			err = os.Mkdir(fullPathUser, 0700)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	changeOwner(basePath, employeeList)
