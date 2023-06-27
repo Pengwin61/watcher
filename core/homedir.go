@@ -56,7 +56,7 @@ func DirExpired(basePath string, daysRotation string, usersList []string) error 
 		return err
 	}
 
-	daysRotationInMinuts := days * 24
+	daysRotationInMinuts := days * 24 * 60
 
 	nowTime := time.Now()
 	then := nowTime.Add(time.Duration(-daysRotationInMinuts) * time.Hour)
