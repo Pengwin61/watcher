@@ -32,11 +32,12 @@ func main() {
 		os.Exit(1)
 	}
 	/* Flags */
-	scheduleFlag := flag.String("schedule", "1m", "Delault time for updates")
+	scheduleFlag := flag.String("schedule", "10m", "Delault time for updates")
 	softQuotaFlag := flag.String("soft", "1G", "Soft quota")
 	hardQuotaFlag := flag.String("hard", "1G", "Hard quota")
 
 	flag.Parse()
+
 	/* settings.cfg */
 
 	mode := cfg.Section("").Key("app_mode").String()
