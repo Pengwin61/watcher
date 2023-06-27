@@ -117,6 +117,7 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 
 			//
 			//
+
 			usersList, err := c.GetUser(groudIpa)
 			if err != nil {
 				log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
@@ -127,16 +128,16 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 				log.Printf("can not get user list ID; err: %s", err.Error())
 			}
 
-			err = core.CreateDirectory(basePath, usersList, userListID)
-			if err != nil {
-				// log.Printf("can not create directory; err: %s", err.Error())
-				log.Printf("can not create directory; err: %s", err.Error())
-			}
-
 			/* Удаление папки */
 			err = core.DirExpired(basePath, daysRotation, usersList)
 			if err != nil {
 				log.Printf("can not delete directory; err: %s", err.Error())
+			}
+
+			err = core.CreateDirectory(basePath, usersList, userListID)
+			if err != nil {
+				// log.Printf("can not create directory; err: %s", err.Error())
+				log.Printf("can not create directory; err: %s", err.Error())
 			}
 
 			sshstdout := conSSH.ConnectHost("x2golistsessions_root", actorsList)
