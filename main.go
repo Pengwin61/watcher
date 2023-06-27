@@ -85,10 +85,10 @@ func main() {
 
 // Start Programm
 func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
-	hostIpa, userIpa, ipaPasswdFlag, groudIpa,
+	hostIpa, userIpa, userpassIpa, groudIpa,
 	actorsUser, actorsPaswd string, schedule time.Duration) []string {
 
-	c, err := authenticators.NewClient(hostIpa, userIpa, ipaPasswdFlag)
+	c, err := authenticators.NewClient(hostIpa, userIpa, userpassIpa)
 	if err != nil {
 		log.Fatalf("can not create freeIpa client; err: %s", err.Error())
 	}

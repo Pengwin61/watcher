@@ -35,7 +35,6 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 					if checkHostMatches(v.Hostname, val.DepSvcName, domain) {
 						// fmt.Println(v.Hostname) //mk0vm1032.bosch-ru.ru
-						domain = fmt.Sprintf("." + domain)
 
 						hostname := strings.TrimRight(v.Hostname, domain)
 
@@ -108,7 +107,8 @@ func checkExpiration(t string) bool {
 }
 
 func checkHostMatches(hostname, depSvcName, domain string) bool {
-	hostname = strings.TrimRight(hostname, domain)
+
+	hostname = strings.TrimRight(hostname, fmt.Sprint(".", domain))
 	depSvcName = strings.TrimLeft(depSvcName, "s-")
 
 	if strings.EqualFold(depSvcName, hostname) {
