@@ -20,27 +20,21 @@ func DiffSession(x2gosession map[string]*connectors.User,
 	var err error
 
 	for session, v := range x2gosession {
-
 		// fmt.Println("все сессии X2GOSESSION:", session, v)
-
 		if v.SessionState == "S" {
 
 			if checkExpiration(v.StopDateSession) {
 
 				// fmt.Printf("Session Expiration: | %s | %s | %s | %s |\n",
 				// 	v.UserSession, v.SessionState, v.Hostname, v.StopDateSession)
-
 				if val, ok := udssession[session]; ok {
 					// fmt.Println("IN PG", "val:", val, ok)
-
 					if checkHostMatches(v.Hostname, val.DepSvcName, domain) {
 						// fmt.Println(v.Hostname) //mk0vm1032.bosch-ru.ru
-
 						hostname := strings.TrimRight(v.Hostname, domain)
 
 						if host, ok := actorsList[hostname]; ok {
 							// fmt.Println("ActorList:",actorsList, "HOST:", host )
-
 							conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session", conSsh)
 
 							// fmt.Println(val.User_service_id, val.UserID, val.Username)
@@ -50,27 +44,38 @@ func DiffSession(x2gosession map[string]*connectors.User,
 							}
 						}
 					}
-				} else {
-					log.Println("!!!!!!!!!!!!!!!!!!!!!!!!")
 				}
 			}
 		} else {
 			log.Printf("X2GO RUN SESSION: | %s | %s | %s | %s | %s |\n",
 				v.UserSession, v.SessionState, v.Hostname, v.StartDateSession, v.StopDateSession)
+
 		}
 
 		/* check diff sessions */
 		diff := difference(x2gosession, udssession)
-		fmt.Println("DIFF:", diff)
+		// log.Println("session removed from database:", diff)
 
 		for _, k := range diff {
 			if val, ok := udssession[k]; ok {
 				err := conPg.UpdateTab(val.User_service_id)
+
 				if err != nil {
 					return err
 				}
 			}
+			if val, ok := x2gosession[k]; ok {
+
+				hostname := strings.TrimRight(val.Hostname, domain)
+				hostname = strings.TrimRight(hostname, fmt.Sprint(".", domain))
+
+				if host, ok := actorsList[hostname]; ok {
+					conSsh.TerminateSession(val.SessionPid, host, "x2goterminate-session", conSsh)
+				}
+
+			}
 		}
+
 	}
 
 	return err
@@ -82,17 +87,13 @@ func convertTime(t string) time.Time {
 	timeSession, err := time.Parse(layout, t)
 	if err != nil {
 		log.Println(err)
-		// return nil, err
 	}
 	return timeSession
 }
 
 func checkExpiration(t string) bool {
-	// currentTime := time.Now()
-	// currentTime = currentTime.Truncate(time.Second)
 
 	stopTimeSession := convertTime(t)
-	// delta := stopTimeSession.Sub(currentTime)
 	delta := time.Since(stopTimeSession)
 	delta = delta.Truncate(time.Second)
 
