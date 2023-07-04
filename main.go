@@ -136,7 +136,6 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 
 			err = core.CreateDirectory(basePath, usersList, userListID)
 			if err != nil {
-				// log.Printf("can not create directory; err: %s", err.Error())
 				log.Printf("can not create directory; err: %s", err.Error())
 			}
 
@@ -157,7 +156,11 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 			if err != nil {
 				log.Fatal("can not:", err.Error())
 			}
-			//core.SetQuota(softQuotaFlag, hardQuotaFlag, *userList)
+
+			err = core.SetQuota(softQuotaFlag, hardQuotaFlag, usersList)
+			if err != nil {
+				log.Println("can not: set quota: %s", err.Error())
+			}
 
 		} else {
 
