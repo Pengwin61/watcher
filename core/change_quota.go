@@ -13,4 +13,5 @@ func SetQuota(softQuota, hardQuota string, userList []string) error {
 		}
 		log.Println("User quota:", users, "is set", hardQuota)
 	}
+	return nil
 }
