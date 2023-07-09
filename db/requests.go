@@ -38,6 +38,9 @@ func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer result.Close()
+
 	for result.Next() {
 		if err := result.Scan(&idSession, &srcIp, &userState, &inUse, &inUseDate, &depsrvID, &userID, &depsvcname, &username); err != nil {
 			return nil, err
@@ -65,6 +68,9 @@ func (c *ClientPg) GetEntity(entity string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer result.Close()
+
 	for result.Next() {
 		if err := result.Scan(&ip, &hostname); err != nil {
 			return nil, err
@@ -89,14 +95,6 @@ func (c *ClientPg) UpdateDB() (sql.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result, err
-}
 
-func (c *ClientPg) UpdateDBtest() (sql.Result, error) {
-	result, err := c.condb.Exec("update public.uds_authenticator set priority = $1 where priority = $2",
-		"30", "1")
-	if err != nil {
-		return nil, err
-	}
 	return result, err
 }

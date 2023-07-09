@@ -120,7 +120,7 @@ func checkHostMatches(hostname, depSvcName, domain string) bool {
 	return false
 }
 
-func contains(array map[string]*connectors.User, value string) bool {
+func containsIpaUser(array map[string]*connectors.User, value string) bool {
 	for k := range array {
 		if k == value {
 			return true
@@ -128,7 +128,7 @@ func contains(array map[string]*connectors.User, value string) bool {
 	}
 	return false
 }
-func contains2(array map[string]db.UserService, value string) bool {
+func containsDbUser(array map[string]db.UserService, value string) bool {
 	for k := range array {
 		if k == value {
 			return true
@@ -142,15 +142,16 @@ func difference(x2gosession map[string]*connectors.User, udssession map[string]d
 	diffArray := []string{}
 
 	for k := range x2gosession {
-		if !contains2(udssession, k) {
+		if !containsDbUser(udssession, k) {
 			diffArray = append(diffArray, k)
 		}
 	}
 
 	for k := range udssession {
-		if !contains(x2gosession, k) {
+		if !containsIpaUser(x2gosession, k) {
 			diffArray = append(diffArray, k)
 		}
 	}
+
 	return diffArray
 }

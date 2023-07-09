@@ -156,10 +156,10 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 				log.Fatal("can not:", err.Error())
 			}
 
-			err = core.SetQuota(softQuotaFlag, hardQuotaFlag, usersList)
-			if err != nil {
-				log.Printf("can not set quota: %s", err.Error())
-			}
+			// err = core.SetQuota(softQuotaFlag, hardQuotaFlag, usersList)
+			// if err != nil {
+			// 	log.Printf("can not set quota: %s", err.Error())
+			// }
 
 		} else {
 
