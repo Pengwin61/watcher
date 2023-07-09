@@ -29,7 +29,7 @@ func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
 
 	var fullResult string
 	results := make(chan string, 10)
-	timeout := time.After(120 * time.Second)
+	timeout := time.After(20 * time.Second)
 
 	for _, ip := range actorlist {
 		go func(ip string) {

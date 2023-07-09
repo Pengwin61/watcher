@@ -143,7 +143,6 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 
 			x2gosession, err := connectors.GetSessionX2go(sshstdout)
 			if err != nil {
-				// log.Fatalf("list session x2go is empty: %s", err.Error())
 				log.Printf("list session x2go is empty: %s", err.Error())
 			}
 
