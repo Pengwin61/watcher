@@ -20,24 +20,16 @@ func DiffSession(x2gosession map[string]*connectors.User,
 	var err error
 
 	for session, v := range x2gosession {
-		// fmt.Println("все сессии X2GOSESSION:", session, v)
+
 		if v.SessionState == "S" {
-
 			if checkExpiration(v.StopDateSession) {
-
-				// fmt.Printf("Session Expiration: | %s | %s | %s | %s |\n",
-				// 	v.UserSession, v.SessionState, v.Hostname, v.StopDateSession)
 				if val, ok := udssession[session]; ok {
-					// fmt.Println("IN PG", "val:", val, ok)
 					if checkHostMatches(v.Hostname, val.DepSvcName, domain) {
-						// fmt.Println(v.Hostname) //mk0vm1032.bosch-ru.ru
 						hostname := strings.TrimRight(v.Hostname, domain)
 
 						if host, ok := actorsList[hostname]; ok {
-							// fmt.Println("ActorList:",actorsList, "HOST:", host )
 							conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session", conSsh)
 
-							// fmt.Println(val.User_service_id, val.UserID, val.Username)
 							err := conPg.UpdateTab(val.User_service_id)
 							if err != nil {
 								return err
@@ -54,7 +46,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 		/* check diff sessions */
 		diff := difference(x2gosession, udssession)
-		// log.Println("session removed from database:", diff)
+		log.Println("session removed from database:", diff)
 
 		for _, k := range diff {
 			if val, ok := udssession[k]; ok {
@@ -72,12 +64,9 @@ func DiffSession(x2gosession map[string]*connectors.User,
 				if host, ok := actorsList[hostname]; ok {
 					conSsh.TerminateSession(val.SessionPid, host, "x2goterminate-session", conSsh)
 				}
-
 			}
 		}
-
 	}
-
 	return err
 }
 
