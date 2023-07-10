@@ -18,6 +18,7 @@ type UserService struct {
 }
 
 func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
+
 	storage := map[string]UserService{}
 
 	var idSession int
@@ -53,7 +54,7 @@ func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 		storage[username] = user
 	}
 
-	return storage, err
+	return storage, result.Err()
 }
 
 func (c *ClientPg) GetEntity(entity string) (map[string]string, error) {
@@ -78,7 +79,7 @@ func (c *ClientPg) GetEntity(entity string) (map[string]string, error) {
 		entityList[hostname] = ip
 	}
 
-	return entityList, err
+	return entityList, result.Err()
 
 }
 func (c *ClientPg) UpdateTab(User_service_id int) error {

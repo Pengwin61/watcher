@@ -22,8 +22,11 @@ func DiffSession(x2gosession map[string]*connectors.User,
 	for session, v := range x2gosession {
 
 		if v.SessionState == "S" {
+
 			if checkExpiration(v.StopDateSession) {
+
 				if val, ok := udssession[session]; ok {
+
 					if checkHostMatches(v.Hostname, val.DepSvcName, domain) {
 						hostname := strings.TrimRight(v.Hostname, domain)
 
