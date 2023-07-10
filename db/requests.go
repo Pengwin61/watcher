@@ -19,17 +19,9 @@ type UserService struct {
 
 func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 
-	storage := map[string]UserService{}
+	var tmp UserService
 
-	var idSession int
-	var srcIp string
-	var userState string
-	var inUse bool
-	var inUseDate string
-	var depsrvID int
-	var userID int
-	var depsvcname string
-	var username string
+	storage := map[string]UserService{}
 
 	sqlselect := "SELECT public.uds__user_service.id, src_ip, public.uds__user_service.state, in_use , in_use_date, deployed_service_id, user_id, public.uds__deployed_service.name, public.uds_user.name"
 	sqlfrom := " FROM public.uds__user_service"
@@ -43,15 +35,11 @@ func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 	defer result.Close()
 
 	for result.Next() {
-		if err := result.Scan(&idSession, &srcIp, &userState, &inUse, &inUseDate, &depsrvID, &userID, &depsvcname, &username); err != nil {
+		if err := result.Scan(&tmp.User_service_id, &tmp.SrcIP, &tmp.State, &tmp.InUse,
+			&tmp.InUseDate, &tmp.DepSvcID, &tmp.UserID, &tmp.DepSvcName, &tmp.Username); err != nil {
 			return nil, err
 		}
-
-		var user = UserService{User_service_id: idSession, SrcIP: srcIp,
-			State: userState, InUse: inUse, InUseDate: inUseDate,
-			DepSvcID: depsrvID, DepSvcName: depsvcname, UserID: userID, Username: username}
-
-		storage[username] = user
+		storage[tmp.Username] = tmp
 	}
 
 	return storage, result.Err()
