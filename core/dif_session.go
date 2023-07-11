@@ -32,6 +32,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 						if host, ok := actorsList[hostname]; ok {
 							conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session", conSsh)
+							log.Printf("session %s expired.", v.SessionPid)
 
 							err := conPg.UpdateTab(val.User_service_id)
 							if err != nil {
@@ -44,16 +45,15 @@ func DiffSession(x2gosession map[string]*connectors.User,
 		} else {
 			log.Printf("X2GO RUN SESSION: | %s | %s | %s | %s | %s |\n",
 				v.UserSession, v.SessionState, v.Hostname, v.StartDateSession, v.StopDateSession)
-
 		}
 
 		/* check diff sessions */
 		diff := difference(x2gosession, udssession)
-		log.Println("session removed from database:", diff)
 
 		for _, k := range diff {
 			if val, ok := udssession[k]; ok {
 				err := conPg.UpdateTab(val.User_service_id)
+				log.Printf("session %d removed from database, watcher didn't find session record in x2go", val.User_service_id)
 
 				if err != nil {
 					return err
@@ -66,6 +66,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 				if host, ok := actorsList[hostname]; ok {
 					conSsh.TerminateSession(val.SessionPid, host, "x2goterminate-session", conSsh)
+					log.Printf("session %s terminated, user %s logged in incorrectly.", val.SessionPid, val.UserSession)
 				}
 			}
 		}
