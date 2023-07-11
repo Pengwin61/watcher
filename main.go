@@ -24,6 +24,12 @@ func init() {
 
 }
 
+type Params struct {
+	mode, domain, basePath, daysRotation, hostIpa, userIpa,
+	userPassIpa, groupIpa, actorsUser, actorsPaswd,
+	softQuota, hardQuota string
+}
+
 func main() {
 
 	cfg, err := ini.Load("settings.cfg")
@@ -33,8 +39,6 @@ func main() {
 	}
 	/* Flags */
 	scheduleFlag := flag.String("schedule", "10m", "Delault time for updates")
-	softQuotaFlag := flag.String("soft", "1G", "Soft quota")
-	hardQuotaFlag := flag.String("hard", "1G", "Hard quota")
 
 	flag.Parse()
 
@@ -49,15 +53,25 @@ func main() {
 
 	hostIpa := cfg.Section("FreeIpa").Key("host").String()
 	userIpa := cfg.Section("FreeIpa").Key("username").String()
-	userpassIpa := cfg.Section("FreeIpa").Key("password").String()
-	groudIpa := cfg.Section("FreeIpa").Key("user_group").String()
+	userPassIpa := cfg.Section("FreeIpa").Key("password").String()
+	groupIpa := cfg.Section("FreeIpa").Key("user_group").String()
 
 	actorsUser := cfg.Section("servers").Key("username").String()
 	actorsPaswd := cfg.Section("servers").Key("password").String()
 
+	softQuota := cfg.Section("UserQuota").Key("softQuota").String()
+	hardQuota := cfg.Section("UserQuota").Key("hardQuota").String()
+
 	schedule, _ := time.ParseDuration(*scheduleFlag)
 	basePath := core.CreatePath(pathFlag)
 
+	/*
+
+	 */
+	var params = Params{mode: mode, domain: domain, basePath: basePath,
+		daysRotation: daysRotation, hostIpa: hostIpa, userIpa: userIpa,
+		userPassIpa: userPassIpa, groupIpa: groupIpa, actorsUser: actorsUser,
+		actorsPaswd: actorsPaswd, softQuota: softQuota, hardQuota: hardQuota}
 	//
 
 	/*
@@ -79,17 +93,13 @@ func main() {
 
 
 	 */
-	runWatcher(mode, domain, basePath, daysRotation, *softQuotaFlag, *hardQuotaFlag,
-		hostIpa, userIpa, userpassIpa, groudIpa, actorsUser,
-		actorsPaswd, schedule)
+	runWatcher(params, schedule)
 }
 
 // Start Programm
-func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuotaFlag,
-	hostIpa, userIpa, userpassIpa, groudIpa,
-	actorsUser, actorsPaswd string, schedule time.Duration) []string {
+func runWatcher(params Params, schedule time.Duration) []string {
 
-	c, err := authenticators.NewClient(hostIpa, userIpa, userpassIpa)
+	c, err := authenticators.NewClient(params.hostIpa, params.userIpa, params.userPassIpa)
 	if err != nil {
 		log.Fatalf("can not create freeIpa client; err: %s", err.Error())
 	}
@@ -100,15 +110,14 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 	}
 	defer conPg.CloseDB()
 
-	conSSH, err := connectors.NewClient(actorsUser, actorsPaswd)
+	conSSH, err := connectors.NewClient(params.actorsUser, params.actorsPaswd)
 	if err != nil {
 		log.Fatalf("can not create SSH connection to hosts: %s", err.Error())
 	}
 
 	for {
 
-		if appMode == "production" {
-			// log.Println("APP MODE:", appMode)
+		if params.mode == "production" {
 
 			actorsList, err := conPg.GetEntity("uds_actortoken")
 			if err != nil {
@@ -118,7 +127,7 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 			//
 			//
 
-			usersList, err := c.GetUser(groudIpa)
+			usersList, err := c.GetUser(params.groupIpa)
 			if err != nil {
 				log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
 			}
@@ -129,12 +138,12 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 			}
 
 			/* Удаление папки */
-			err = core.DirExpired(basePath, daysRotation, usersList)
+			err = core.DirExpired(params.basePath, params.daysRotation, usersList)
 			if err != nil {
 				log.Printf("can not delete directory; err: %s", err.Error())
 			}
 
-			err = core.CreateDirectory(basePath, usersList, userListID)
+			err = core.CreateDirectory(params.basePath, usersList, userListID)
 			if err != nil {
 				log.Printf("can not create directory; err: %s", err.Error())
 			}
@@ -151,7 +160,7 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 				log.Fatalf("can not; err: %s", err.Error())
 			}
 
-			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList, domain)
+			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList, params.domain)
 			if err != nil {
 				log.Fatal("can not:", err.Error())
 			}
@@ -163,7 +172,7 @@ func runWatcher(appMode, domain, basePath, daysRotation, softQuotaFlag, hardQuot
 
 		} else {
 
-			log.Println("APP MODE:", appMode)
+			log.Println("APP MODE:", params.mode)
 
 		}
 
