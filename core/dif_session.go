@@ -23,25 +23,28 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 		if v.SessionState == "S" {
 
-			if checkExpiration(v.StopDateSession) {
+			expired, delta := checkExpirationSession(v.StopDateSession)
+
+			if expired {
+				log.Printf("session %s, isExpired %t, overtime:%s \n", v.UserSession, isExpired, delta)
 
 				if val, ok := udssession[session]; ok {
+					hostEqual, hostname := checkHostMatches(v.Hostname, val.DepSvcName, domain)
 
-					if checkHostMatches(v.Hostname, val.DepSvcName, domain) {
-						hostname := strings.TrimRight(v.Hostname, domain)
-
+					if hostEqual {
 						if host, ok := actorsList[hostname]; ok {
 							conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session", conSsh)
-							log.Printf("session %s expired.", v.SessionPid)
 
 							err := conPg.UpdateTab(val.User_service_id)
 							if err != nil {
 								return err
 							}
+							log.Printf("session %s expired. update database %d", v.SessionPid, val.User_service_id)
 						}
 					}
 				}
 			}
+
 		} else {
 			log.Printf("X2GO RUN SESSION: | %s | %s | %s | %s | %s |\n",
 				v.UserSession, v.SessionState, v.Hostname, v.StartDateSession, v.StopDateSession)
@@ -53,7 +56,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 		for _, k := range diff {
 			if val, ok := udssession[k]; ok {
 				err := conPg.UpdateTab(val.User_service_id)
-				log.Printf("session %d removed from database, watcher didn't find session record in x2go", val.User_service_id)
+				log.Printf("session ID:%d removed from database, watcher didn't find session record in x2go", val.User_service_id)
 
 				if err != nil {
 					return err
@@ -84,7 +87,7 @@ func convertTime(t string) time.Time {
 	return timeSession
 }
 
-func checkExpiration(t string) bool {
+func checkExpirationSession(t string) (bool, time.Duration) {
 
 	stopTimeSession := convertTime(t)
 	delta := time.Since(stopTimeSession)
@@ -95,22 +98,22 @@ func checkExpiration(t string) bool {
 			log.Fatal("session sub zero =)")
 		}
 		isExpired = true
-		return isExpired
+		return isExpired, delta
 	}
-	return false
+	return false, delta
 }
 
-func checkHostMatches(hostname, depSvcName, domain string) bool {
+func checkHostMatches(hostname, depSvcName, domain string) (bool, string) {
 
 	hostname = strings.TrimRight(hostname, fmt.Sprint(".", domain))
 	depSvcName = strings.TrimLeft(depSvcName, "s-")
 
 	if strings.EqualFold(depSvcName, hostname) {
-		return true
+		return true, hostname
 	} else {
-		fmt.Println("not found:", depSvcName, hostname, "не равны")
+		fmt.Println("not found:", depSvcName, hostname, "are not equal")
 	}
-	return false
+	return false, hostname
 }
 
 func containsIpaUser(array map[string]*connectors.User, value string) bool {

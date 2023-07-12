@@ -165,7 +165,7 @@ func runWatcher(params Params, schedule time.Duration) []string {
 				log.Fatal("can not:", err.Error())
 			}
 
-			// err = core.SetQuota(softQuotaFlag, hardQuotaFlag, usersList)
+			// err = core.SetQuota(params.softQuota, params.hardQuota, usersList)
 			// if err != nil {
 			// 	log.Printf("can not set quota: %s", err.Error())
 			// }
