@@ -26,7 +26,6 @@ func DiffSession(x2gosession map[string]*connectors.User,
 			expired, delta := checkExpirationSession(v.StopDateSession)
 
 			if expired {
-				log.Printf("session %s, isExpired %t, overtime:%s \n", v.UserSession, isExpired, delta)
 
 				if val, ok := udssession[session]; ok {
 					hostEqual, hostname := checkHostMatches(v.Hostname, val.DepSvcName, domain)
@@ -39,7 +38,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 							if err != nil {
 								return err
 							}
-							log.Printf("session %s expired, update database %d", v.SessionPid, val.User_service_id)
+							log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta, val.User_service_id)
 						}
 					}
 				}
