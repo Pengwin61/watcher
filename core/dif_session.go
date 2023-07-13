@@ -39,7 +39,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 							if err != nil {
 								return err
 							}
-							log.Printf("session %s expired. update database %d", v.SessionPid, val.User_service_id)
+							log.Printf("session %s expired, update database %d", v.SessionPid, val.User_service_id)
 						}
 					}
 				}
@@ -89,9 +89,13 @@ func convertTime(t string) time.Time {
 
 func checkExpirationSession(t string) (bool, time.Duration) {
 
+	var msk, _ = time.ParseDuration("3h")
+
 	stopTimeSession := convertTime(t)
 	delta := time.Since(stopTimeSession)
 	delta = delta.Truncate(time.Second)
+
+	delta += msk
 
 	if delta >= dur {
 		if delta <= 0 {
