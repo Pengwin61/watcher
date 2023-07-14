@@ -32,13 +32,13 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 					if hostEqual {
 						if host, ok := actorsList[hostname]; ok {
-							conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session", conSsh)
+							conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session")
 
-							err := conPg.UpdateTab(val.User_service_id)
+							err := conPg.UpdateTab(val.UserServiceId)
 							if err != nil {
 								return err
 							}
-							log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta, val.User_service_id)
+							log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta, val.UserServiceId)
 						}
 					}
 				}
@@ -54,8 +54,8 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 		for _, k := range diff {
 			if val, ok := udssession[k]; ok {
-				err := conPg.UpdateTab(val.User_service_id)
-				log.Printf("session ID:%d removed from database, watcher didn't find session record in x2go", val.User_service_id)
+				err := conPg.UpdateTab(val.UserServiceId)
+				log.Printf("session ID:%d removed from database, watcher didn't find session record in x2go", val.UserServiceId)
 
 				if err != nil {
 					return err
@@ -67,7 +67,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 				hostname = strings.TrimRight(hostname, fmt.Sprint(".", domain))
 
 				if host, ok := actorsList[hostname]; ok {
-					conSsh.TerminateSession(val.SessionPid, host, "x2goterminate-session", conSsh)
+					conSsh.TerminateSession(val.SessionPid, host, "x2goterminate-session")
 					log.Printf("session %s terminated, user %s logged in incorrectly.", val.SessionPid, val.UserSession)
 				}
 			}

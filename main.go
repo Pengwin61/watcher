@@ -96,7 +96,7 @@ func main() {
 	runWatcher(params, schedule)
 }
 
-// Start Programm
+// Start Program
 func runWatcher(params Params, schedule time.Duration) []string {
 
 	c, err := authenticators.NewClient(params.hostIpa, params.userIpa, params.userPassIpa)

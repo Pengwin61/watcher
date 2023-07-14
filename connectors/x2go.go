@@ -73,7 +73,7 @@ func GetSessionX2go(stdout string) (map[string]*User, error) {
 	return storage, err
 }
 
-func (c *Client) TerminateSession(sessionPid, host, cmd string, conssh *Client) {
+func (c *Client) TerminateSession(sessionPid, host, cmd string) {
 
 	hostsList := make(map[string]string)
 	hostsList[host] = host
