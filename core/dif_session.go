@@ -10,7 +10,6 @@ import (
 )
 
 var dur, _ = time.ParseDuration("4h")
-var isExpired bool
 
 func DiffSession(x2gosession map[string]*connectors.User,
 	udssession map[string]db.UserService,
@@ -100,8 +99,7 @@ func checkExpirationSession(t string) (bool, time.Duration) {
 		if delta <= 0 {
 			log.Fatal("session sub zero =)")
 		}
-		isExpired = true
-		return isExpired, delta
+		return true, delta
 	}
 	return false, delta
 }
