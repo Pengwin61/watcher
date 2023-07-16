@@ -9,7 +9,7 @@ import (
 	"watcher/db"
 )
 
-var dur, _ = time.ParseDuration("4h")
+var durationSession, _ = time.ParseDuration("4h")
 
 func DiffSession(x2gosession map[string]*connectors.User,
 	udssession map[string]db.UserService,
@@ -20,31 +20,27 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 	for session, v := range x2gosession {
 
-		if v.SessionState == "S" {
+		expired, delta := checkExpirationSession(v.StopDateSession, v.SessionState, v.UserSession)
 
-			expired, delta := checkExpirationSession(v.StopDateSession)
+		if expired {
 
-			if expired {
+			if val, ok := udssession[session]; ok {
+				hostEqual, hostname := checkHostMatches(v.Hostname, val.DepSvcName, domain)
 
-				if val, ok := udssession[session]; ok {
-					hostEqual, hostname := checkHostMatches(v.Hostname, val.DepSvcName, domain)
+				if hostEqual {
+					if host, ok := actorsList[hostname]; ok {
+						conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session")
 
-					if hostEqual {
-						if host, ok := actorsList[hostname]; ok {
-							conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session")
-
-							err := conPg.UpdateTab(val.UserServiceId)
-							if err != nil {
-								return err
-							}
-							log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta, val.UserServiceId)
+						err := conPg.UpdateTab(val.UserServiceId)
+						if err != nil {
+							return err
 						}
+						log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta-durationSession, val.UserServiceId)
 					}
 				}
 			}
-
 		} else {
-			log.Printf("X2GO RUN SESSION: | %s | %s | %s | %s | %s |\n",
+			log.Printf("X2GO RUN SESSION: | %20s | %s | %s | %s | %s |\n",
 				v.UserSession, v.SessionState, v.Hostname, v.StartDateSession, v.StopDateSession)
 		}
 
@@ -85,7 +81,7 @@ func convertTime(t string) time.Time {
 	return timeSession
 }
 
-func checkExpirationSession(t string) (bool, time.Duration) {
+func checkExpirationSession(t, state, user string) (bool, time.Duration) {
 
 	var msk, _ = time.ParseDuration("3h")
 
@@ -95,12 +91,11 @@ func checkExpirationSession(t string) (bool, time.Duration) {
 
 	delta += msk
 
-	if delta >= dur {
-		if delta <= 0 {
-			log.Fatal("session sub zero =)")
-		}
+	if delta >= durationSession && state != "R" {
+
 		return true, delta
 	}
+
 	return false, delta
 }
 

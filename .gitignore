@@ -1,4 +1,6 @@
 ./idea/
 ./idea
+./vscode/
+./vscode
 .env
 settings.cfg
