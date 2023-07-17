@@ -49,6 +49,9 @@ func main() {
 	mode := cfg.Section("").Key("app_mode").String()
 	domain := cfg.Section("").Key("domain").String()
 
+	web, _ := cfg.Section("web").Key("enable").Bool()
+	webIp := cfg.Section("web").Key("ip").String()
+
 	pathFlag := cfg.Section("paths").Key("home_dir").String()
 	daysRotation := cfg.Section("paths").Key("home_dir_days_rotation").String()
 	logsPath := cfg.Section("paths").Key("logs").String()
@@ -98,15 +101,18 @@ func main() {
 
 	go runWatcher(params, schedule)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	if web {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-		data := core.Tmp
-		tmpl, _ := template.ParseFiles("templates/index.html")
-		tmpl.Execute(w, data)
-	})
+			data := core.Tmp
+			tmpl, _ := template.ParseFiles("templates/index.html")
+			tmpl.Execute(w, data)
+		})
 
-	fmt.Println("Server is listening...")
-	http.ListenAndServe(":8181", nil)
+		fmt.Println("Server is listening...")
+		http.ListenAndServe(webIp, nil)
+	}
+
 }
 
 // Start Program
