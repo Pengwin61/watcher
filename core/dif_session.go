@@ -39,23 +39,26 @@ func DiffSession(x2gosession map[string]*connectors.User,
 					}
 				}
 			}
-		} else {
-			log.Printf("X2GO RUN SESSION: | %20s | %s | %s | %s | %s |\n",
-				v.UserSession, v.SessionState, v.Hostname, v.StartDateSession, v.StopDateSession)
+		}
+		if !expired && v.SessionState != "S" {
+			log.Printf("X2GO RUN SESSION: | %20s | %s | %s | %s | %s | %t\n",
+				v.UserSession, v.SessionState, v.Hostname, v.StartDateSession, v.StopDateSession, expired)
 		}
 
 		/* check diff sessions */
 		diff := difference(x2gosession, udssession)
 
+		// deletes the session when the user presses the logoff button
 		for _, k := range diff {
 			if val, ok := udssession[k]; ok {
 				err := conPg.UpdateTab(val.UserServiceId)
-				log.Printf("session ID:%d removed from database, watcher didn't find session record in x2go", val.UserServiceId)
+				log.Printf("session %s removed from database ID:%d, watcher didn't find session record in x2go", val.Username, val.UserServiceId)
 
 				if err != nil {
 					return err
 				}
 			}
+			// deletes session when user connected bypassing openuds
 			if val, ok := x2gosession[k]; ok {
 
 				hostname := strings.TrimRight(val.Hostname, domain)

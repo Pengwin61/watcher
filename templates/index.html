@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>OpenUDS users session</title>
+    </head>
+    <body>
+        <h1>Users:</h1>
+        <ul>
+            {{range .}}
+                <li>Name: {{.Username}}, 
+                    Status: {{.Status}},
+                    Hostname: {{.Hostname}},
+                    StartSession: {{.StartSession}},
+                    StopSession: {{.StopSession}},
+                </li>
+            {{end}}
+        </ul>
+    </body>
+</html>

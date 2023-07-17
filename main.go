@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
+	"text/template"
 	"time"
 	"watcher/authenticators"
 	"watcher/connectors"
@@ -29,6 +31,16 @@ type Params struct {
 	userPassIpa, groupIpa, actorsUser, actorsPaswd,
 	softQuota, hardQuota string
 }
+
+type ViewSession struct {
+	Username     string
+	Status       string
+	Hostname     string
+	StartSession string
+	StopSession  string
+}
+
+var Tmp = make([]ViewSession, 0)
 
 func main() {
 
@@ -93,11 +105,22 @@ func main() {
 
 
 	 */
-	runWatcher(params, schedule)
+
+	go runWatcher(params, schedule)
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+		data := Tmp
+		tmpl, _ := template.ParseFiles("templates/index.html")
+		tmpl.Execute(w, data)
+	})
+
+	fmt.Println("Server is listening...")
+	http.ListenAndServe(":8181", nil)
 }
 
 // Start Program
-func runWatcher(params Params, schedule time.Duration) []string {
+func runWatcher(params Params, schedule time.Duration) {
 
 	c, err := authenticators.NewClient(params.hostIpa, params.userIpa, params.userPassIpa)
 	if err != nil {
@@ -123,9 +146,6 @@ func runWatcher(params Params, schedule time.Duration) []string {
 			if err != nil {
 				log.Fatalf("can not get list actors: %s", err.Error())
 			}
-
-			//
-			//
 
 			usersList, err := c.GetUser(params.groupIpa)
 			if err != nil {
@@ -155,6 +175,21 @@ func runWatcher(params Params, schedule time.Duration) []string {
 				log.Printf("list session x2go is empty: %s", err.Error())
 			}
 
+			//
+			//
+			//
+			//
+			//
+			//
+			//
+			Tmp = nil
+			for k, v := range x2gosession {
+
+				vTmp := ViewSession{
+					Username: k, Status: v.SessionState, Hostname: v.Hostname, StartSession: v.StartDateSession, StopSession: v.StopDateSession}
+				Tmp = append(Tmp, vTmp)
+			}
+
 			udssession, err := conPg.GetNewRequest()
 			if err != nil {
 				log.Fatalf("can not; err: %s", err.Error())
@@ -169,7 +204,6 @@ func runWatcher(params Params, schedule time.Duration) []string {
 			// if err != nil {
 			// 	log.Printf("can not set quota: %s", err.Error())
 			// }
-
 		} else {
 
 			log.Println("APP MODE:", params.mode)
