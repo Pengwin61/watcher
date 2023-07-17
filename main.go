@@ -32,16 +32,6 @@ type Params struct {
 	softQuota, hardQuota string
 }
 
-type ViewSession struct {
-	Username     string
-	Status       string
-	Hostname     string
-	StartSession string
-	StopSession  string
-}
-
-var Tmp = make([]ViewSession, 0)
-
 func main() {
 
 	cfg, err := ini.Load("settings.cfg")
@@ -110,7 +100,7 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-		data := Tmp
+		data := core.Tmp
 		tmpl, _ := template.ParseFiles("templates/index.html")
 		tmpl.Execute(w, data)
 	})
@@ -182,13 +172,8 @@ func runWatcher(params Params, schedule time.Duration) {
 			//
 			//
 			//
-			Tmp = nil
-			for k, v := range x2gosession {
 
-				vTmp := ViewSession{
-					Username: k, Status: v.SessionState, Hostname: v.Hostname, StartSession: v.StartDateSession, StopSession: v.StopDateSession}
-				Tmp = append(Tmp, vTmp)
-			}
+			core.ShowSession(x2gosession)
 
 			udssession, err := conPg.GetNewRequest()
 			if err != nil {
