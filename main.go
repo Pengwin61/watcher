@@ -100,7 +100,8 @@ func main() {
 
 	 */
 
-	// go runWatcher(params, schedule)
+	go runWatcher(params, schedule)
+
 	app := new(webapp.Application)
 	app.Auth.Username = "admin"
 	app.Auth.Password = "admin"
