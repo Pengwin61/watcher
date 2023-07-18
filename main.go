@@ -108,13 +108,12 @@ func main() {
 	app.auth.password = "admin"
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", index)
 	mux.HandleFunc("/status", app.basicAuth(app.protectedHandler))
 	mux.HandleFunc("/", app.unprotectedHandler)
 
-	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	fmt.Println("hello")
-	// })
+	//
+	//
+	//
 
 	srv := &http.Server{
 		Addr:         ":8181",
@@ -125,30 +124,13 @@ func main() {
 	}
 
 	log.Printf("starting server on %s", srv.Addr)
-	go http.ListenAndServe(":80", http.HandlerFunc(redirect))
-	// serve index (and anything else) as https
 
 	err = srv.ListenAndServeTLS(sslpub, sslpriv)
-	// err = http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", webPort), nil)
 	if err != nil {
 		log.Printf("%s", err.Error())
 	}
 
 	runWatcher(params, schedule)
-}
-func redirect(w http.ResponseWriter, req *http.Request) {
-	http.Redirect(w, req,
-		"https://"+req.Host+req.URL.String(),
-		http.StatusMovedPermanently)
-}
-
-func index(w http.ResponseWriter, req *http.Request) {
-	// all calls to unknown url paths should return 404
-	if req.URL.Path != "/" {
-		http.NotFound(w, req)
-		return
-	}
-	http.ServeFile(w, req, "index.html")
 }
 
 func (app *application) protectedHandler(w http.ResponseWriter, r *http.Request) {
