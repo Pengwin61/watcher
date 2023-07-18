@@ -1,20 +1,18 @@
 package main
 
 import (
-	"crypto/sha256"
-	"crypto/subtle"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"text/template"
 	"time"
 	"watcher/authenticators"
 	"watcher/connectors"
 	"watcher/core"
 	"watcher/db"
+	"watcher/webapp"
 
 	"github.com/joho/godotenv"
 	"gopkg.in/ini.v1"
@@ -103,18 +101,17 @@ func main() {
 	 */
 
 	// go runWatcher(params, schedule)
-	app := new(application)
-	app.auth.username = "admin"
-	app.auth.password = "admin"
+	app := new(webapp.Application)
+	app.Auth.Username = "admin"
+	app.Auth.Password = "admin"
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/status", app.basicAuth(app.protectedHandler))
-	mux.HandleFunc("/", app.unprotectedHandler)
+	mux.HandleFunc("/status", app.BasicAuth(app.ProtectedHandler))
+	mux.HandleFunc("/", app.UnprotectedHandler)
 
 	//
 	//
 	//
-
 	srv := &http.Server{
 		Addr:         ":8181",
 		Handler:      mux,
@@ -122,7 +119,6 @@ func main() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
-
 	log.Printf("starting server on %s", srv.Addr)
 
 	err = srv.ListenAndServeTLS(sslpub, sslpriv)
@@ -131,54 +127,6 @@ func main() {
 	}
 
 	runWatcher(params, schedule)
-}
-
-func (app *application) protectedHandler(w http.ResponseWriter, r *http.Request) {
-	data := core.Tmp
-	tmpl, err := template.ParseFiles("templates/status.html")
-	if err != nil {
-		log.Printf("%s", err.Error())
-	}
-	tmpl.Execute(w, data)
-}
-
-func (app *application) unprotectedHandler(w http.ResponseWriter, r *http.Request) {
-	data := "print"
-	tmpl, err := template.ParseFiles("templates/index.html")
-	if err != nil {
-		log.Printf("%s", err.Error())
-	}
-	tmpl.Execute(w, data)
-}
-
-func (app *application) basicAuth(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		username, password, ok := r.BasicAuth()
-		if ok {
-			usernameHash := sha256.Sum256([]byte(username))
-			passwordHash := sha256.Sum256([]byte(password))
-			expectedUsernameHash := sha256.Sum256([]byte(app.auth.username))
-			expectedPasswordHash := sha256.Sum256([]byte(app.auth.password))
-
-			usernameMatch := (subtle.ConstantTimeCompare(usernameHash[:], expectedUsernameHash[:]) == 1)
-			passwordMatch := (subtle.ConstantTimeCompare(passwordHash[:], expectedPasswordHash[:]) == 1)
-
-			if usernameMatch && passwordMatch {
-				next.ServeHTTP(w, r)
-				return
-			}
-		}
-
-		w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-	})
-}
-
-type application struct {
-	auth struct {
-		username string
-		password string
-	}
 }
 
 // Start Program
