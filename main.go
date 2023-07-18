@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"crypto/subtle"
 	"flag"
 	"fmt"
 	"io"
@@ -49,7 +51,9 @@ func main() {
 	mode := cfg.Section("").Key("app_mode").String()
 	domain := cfg.Section("").Key("domain").String()
 
-	webPort := cfg.Section("web").Key("port").String()
+	// webPort := cfg.Section("web").Key("port").String()
+	sslpub := cfg.Section("web").Key("ssl_public").String()
+	sslpriv := cfg.Section("web").Key("ssl_private").String()
 
 	pathFlag := cfg.Section("paths").Key("home_dir").String()
 	daysRotation := cfg.Section("paths").Key("home_dir_days_rotation").String()
@@ -98,22 +102,100 @@ func main() {
 
 	 */
 
-	go runWatcher(params, schedule)
+	// go runWatcher(params, schedule)
+	app := new(application)
+	app.auth.username = "admin"
+	app.auth.password = "admin"
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", index)
+	mux.HandleFunc("/status", app.basicAuth(app.protectedHandler))
+	mux.HandleFunc("/", app.unprotectedHandler)
 
-		data := core.Tmp
-		tmpl, err := template.ParseFiles("templates/index.html")
-		if err != nil {
-			log.Printf("%s", err.Error())
-		}
-		tmpl.Execute(w, data)
-	})
+	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	// 	fmt.Println("hello")
+	// })
 
-	fmt.Println("Server is listening...")
-	err = http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", webPort), nil)
+	srv := &http.Server{
+		Addr:         ":8181",
+		Handler:      mux,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
+
+	log.Printf("starting server on %s", srv.Addr)
+	go http.ListenAndServe(":80", http.HandlerFunc(redirect))
+	// serve index (and anything else) as https
+
+	err = srv.ListenAndServeTLS(sslpub, sslpriv)
+	// err = http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", webPort), nil)
 	if err != nil {
 		log.Printf("%s", err.Error())
+	}
+
+	runWatcher(params, schedule)
+}
+func redirect(w http.ResponseWriter, req *http.Request) {
+	http.Redirect(w, req,
+		"https://"+req.Host+req.URL.String(),
+		http.StatusMovedPermanently)
+}
+
+func index(w http.ResponseWriter, req *http.Request) {
+	// all calls to unknown url paths should return 404
+	if req.URL.Path != "/" {
+		http.NotFound(w, req)
+		return
+	}
+	http.ServeFile(w, req, "index.html")
+}
+
+func (app *application) protectedHandler(w http.ResponseWriter, r *http.Request) {
+	data := core.Tmp
+	tmpl, err := template.ParseFiles("templates/status.html")
+	if err != nil {
+		log.Printf("%s", err.Error())
+	}
+	tmpl.Execute(w, data)
+}
+
+func (app *application) unprotectedHandler(w http.ResponseWriter, r *http.Request) {
+	data := "print"
+	tmpl, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		log.Printf("%s", err.Error())
+	}
+	tmpl.Execute(w, data)
+}
+
+func (app *application) basicAuth(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, password, ok := r.BasicAuth()
+		if ok {
+			usernameHash := sha256.Sum256([]byte(username))
+			passwordHash := sha256.Sum256([]byte(password))
+			expectedUsernameHash := sha256.Sum256([]byte(app.auth.username))
+			expectedPasswordHash := sha256.Sum256([]byte(app.auth.password))
+
+			usernameMatch := (subtle.ConstantTimeCompare(usernameHash[:], expectedUsernameHash[:]) == 1)
+			passwordMatch := (subtle.ConstantTimeCompare(passwordHash[:], expectedPasswordHash[:]) == 1)
+
+			if usernameMatch && passwordMatch {
+				next.ServeHTTP(w, r)
+				return
+			}
+		}
+
+		w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	})
+}
+
+type application struct {
+	auth struct {
+		username string
+		password string
 	}
 }
 
