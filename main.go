@@ -108,7 +108,10 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status", app.BasicAuth(app.ProtectedHandler))
-	mux.HandleFunc("/", app.UnprotectedHandler)
+	// mux.HandleFunc("/", app.UnprotectedHandler)
+
+	fs := http.FileServer(http.Dir("templates"))
+	mux.Handle("/", fs)
 
 	//
 	//
@@ -126,8 +129,6 @@ func main() {
 	if err != nil {
 		log.Printf("%s", err.Error())
 	}
-
-	runWatcher(params, schedule)
 }
 
 // Start Program
