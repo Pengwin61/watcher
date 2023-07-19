@@ -49,7 +49,7 @@ func main() {
 	mode := cfg.Section("").Key("app_mode").String()
 	domain := cfg.Section("").Key("domain").String()
 
-	// webPort := cfg.Section("web").Key("port").String()
+	webIp := cfg.Section("web").Key("port").String()
 	sslpub := cfg.Section("web").Key("ssl_public").String()
 	sslpriv := cfg.Section("web").Key("ssl_private").String()
 
@@ -114,7 +114,7 @@ func main() {
 	//
 	//
 	srv := &http.Server{
-		Addr:         ":8181",
+		Addr:         webIp,
 		Handler:      mux,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
