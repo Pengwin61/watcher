@@ -1,0 +1,35 @@
+
+div{
+    color: black;
+    text-align: center;
+    font-size: 30px;
+    font-weight: 1000;
+}
+
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-decoration: none;
+    text-align: right;
+    display: inline-block;
+    font-size: 22px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+.button1 {
+    background-color: white; 
+    color: black; 
+    border: 2px solid #012fff;
+}
+.button1:hover {
+    background-color: #012fff;
+    color: rgb(255, 255, 255);
+}
+.marginauto {
+    margin: 10px auto 20px;
+    display: block;
+}
