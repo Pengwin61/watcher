@@ -81,7 +81,7 @@ func RunWatcher(params configs.Params) {
 
 			core.ShowSession(x2gosession)
 
-			// err = core.SetQuota(params.softQuota, params.hardQuota, usersList)
+			// err = core.SetQuota(params.SoftQuota, params.HardQuota, usersList)
 			// if err != nil {
 			// 	log.Printf("can not set quota: %s", err.Error())
 			// }
@@ -90,6 +90,26 @@ func RunWatcher(params configs.Params) {
 
 			log.Printf("APP MODE:%s", params.Mode)
 
+			usersList, err := c.GetUser(params.GroupIpa)
+			if err != nil {
+				log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
+			}
+
+			userListID, err := c.GetUserID(usersList)
+			if err != nil {
+				log.Printf("can not get user list ID; err: %s", err.Error())
+			}
+
+			/* Удаление папки */
+			err = core.DirExpired(params.PathHome, params.DaysRotation, usersList)
+			if err != nil {
+				log.Printf("can not delete directory; err: %s", err.Error())
+			}
+
+			err = core.CreateDirectory(params.PathHome, usersList, userListID)
+			if err != nil {
+				log.Printf("can not create directory; err: %s", err.Error())
+			}
 		}
 
 		time.Sleep(params.Schedule)

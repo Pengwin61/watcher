@@ -45,9 +45,6 @@ func InitConfigs() Params {
 	pathHome := cfg.Section("paths").Key("home_dir").String()
 	pathLogs := cfg.Section("paths").Key("logs").String()
 
-	// pathTest := cfg.Section("paths").Key("test_dir").ValueWithShadows()
-	// fmt.Println(pathTest)
-
 	daysRotation := cfg.Section("maintenance").Key("home_dir_days_rotation").String()
 	expirationSession, _ := cfg.Section("maintenance").Key("time_expiration_session").Duration()
 
