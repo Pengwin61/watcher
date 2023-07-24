@@ -72,7 +72,10 @@ func executeCmd(cmd, hostname string, config *ssh.ClientConfig) string {
 	defer session.Close()
 
 	session.Stdout = &stdoutBuf
-	session.Run(cmd)
+	err = session.Run(cmd)
+	if err != nil {
+		log.Printf("can`t run cmd: %s", err.Error())
+	}
 
 	res = stdoutBuf.String()
 

@@ -22,7 +22,10 @@ func (app *Application) ProtectedHandler(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		log.Printf("%s", err.Error())
 	}
-	tmpl.Execute(w, data)
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Printf("can`t parse execute template:%s", err.Error())
+	}
 }
 
 func (app *Application) UnprotectedHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +34,11 @@ func (app *Application) UnprotectedHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		log.Printf("%s", err.Error())
 	}
-	tmpl.Execute(w, data)
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Printf("can`t parse execute template:%s", err.Error())
+	}
+
 }
 
 func (app *Application) BasicAuth(next http.HandlerFunc) http.HandlerFunc {
