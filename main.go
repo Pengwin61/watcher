@@ -15,10 +15,6 @@ import (
 	"watcher/webapp"
 )
 
-func init() {
-
-}
-
 func main() {
 
 	params := configs.InitConfigs()
