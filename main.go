@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"io"
 	"log"
 	"net/http"
@@ -15,12 +14,6 @@ import (
 func main() {
 
 	params := configs.InitConfigs()
-
-	/* Flags */
-	scheduleFlag := flag.String("schedule", "10m", "Delault time for updates")
-	flag.Parse()
-
-	schedule, _ := time.ParseDuration(*scheduleFlag)
 
 	/*
 	   Logging
@@ -42,7 +35,7 @@ func main() {
 
 	 */
 
-	go watch.RunWatcher(params, schedule)
+	go watch.RunWatcher(params)
 
 	app := new(webapp.Application)
 	app.Auth.Username = params.WebUser

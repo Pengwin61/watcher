@@ -1,9 +1,10 @@
 package configs
 
 import (
-	"fmt"
+	"flag"
 	"log"
 	"os"
+	"time"
 	"watcher/core"
 
 	"github.com/joho/godotenv"
@@ -15,18 +16,20 @@ type Params struct {
 	UserIpa, UserPassIpa, GroupIpa, ActorsUser, ActorsPaswd,
 	SoftQuota, HardQuota, WebIp, WebUser, WebPass,
 	SslPub, SslPriv string
+	Schedule time.Duration
 }
 
 func InitConfigs() Params {
 	// loads values from .env into the system
 	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
+		os.Exit(1)
 	}
 
 	// loads values from settings.cfg
 	cfg, err := ini.Load("settings.cfg")
 	if err != nil {
-		fmt.Printf("fail to read file: %v", err)
+		log.Printf("fail to read file: %v", err)
 		os.Exit(1)
 	}
 
@@ -60,12 +63,17 @@ func InitConfigs() Params {
 
 	basePath := core.CreatePath(pathHome)
 
+	/* Flags */
+	scheduleFlag := flag.String("schedule", "10m", "Delault time for updates")
+	flag.Parse()
+	schedule, _ := time.ParseDuration(*scheduleFlag)
+
 	var params = Params{Mode: mode, Domain: domain, PathHome: basePath,
 		PathLogs: pathLogs, DaysRotation: daysRotation, HostIpa: hostIpa,
 		UserIpa: userIpa, UserPassIpa: userPassIpa, GroupIpa: groupIpa,
 		ActorsUser: actorsUser, ActorsPaswd: actorsPaswd, SoftQuota: softQuota,
 		HardQuota: hardQuota, WebIp: webIp, WebUser: webUser, WebPass: webPass,
-		SslPub: sslPub, SslPriv: sslPriv}
+		SslPub: sslPub, SslPriv: sslPriv, Schedule: schedule}
 
 	return params
 }

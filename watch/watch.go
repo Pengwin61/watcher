@@ -10,7 +10,7 @@ import (
 	"watcher/db"
 )
 
-func RunWatcher(params configs.Params, schedule time.Duration) {
+func RunWatcher(params configs.Params) {
 
 	c, err := authenticators.NewClient(params.HostIpa, params.UserIpa, params.UserPassIpa)
 	if err != nil {
@@ -91,6 +91,6 @@ func RunWatcher(params configs.Params, schedule time.Duration) {
 
 		}
 
-		time.Sleep(schedule)
+		time.Sleep(params.Schedule)
 	}
 }
