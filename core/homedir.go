@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,7 +14,28 @@ func CreatePath(pathFlag string) string {
 	return basePath
 }
 
-func CreateDirectory(basePath string, users []string, employeeList map[string]int) error {
+func CreateRootDirectory(basePath string, listGroups []string) error {
+	dir, err := os.Open(basePath)
+	if err != nil {
+		return err
+	}
+	for _, group := range listGroups {
+		fullPathGroup := filepath.Join(basePath, group)
+		fmt.Println("FULL PATH GROUP:", fullPathGroup)
+
+		if _, err := os.Stat(group); os.IsNotExist(err) {
+			err = os.Mkdir(fullPathGroup, 0700)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	defer dir.Close()
+	return err
+}
+
+func CreateUserDirectory(basePath, group string, users []string, employeeList map[string]int) error {
 	dir, err := os.Open(basePath)
 	if err != nil {
 		return err
@@ -23,7 +45,8 @@ func CreateDirectory(basePath string, users []string, employeeList map[string]in
 	userlist = append(userlist, users...)
 
 	for _, user := range userlist {
-		fullPathUser := filepath.Join(basePath, user)
+		fullPathUser := filepath.Join(basePath, group, user)
+		fmt.Println("FULL PATH USER:", fullPathUser)
 
 		if _, err := os.Stat(fullPathUser); os.IsNotExist(err) {
 
@@ -33,17 +56,17 @@ func CreateDirectory(basePath string, users []string, employeeList map[string]in
 			}
 		}
 	}
-	changeOwner(basePath, employeeList)
+	changeOwner(basePath, group, employeeList)
 
 	defer dir.Close()
 
 	return err
 }
 
-func changeOwner(basePath string, employeeList map[string]int) {
+func changeOwner(basePath, group string, employeeList map[string]int) {
 
 	for key, value := range employeeList {
-		fullPath := filepath.Join(basePath, key)
+		fullPath := filepath.Join(basePath, group, key)
 		e := os.Chown(fullPath, value, value)
 		if e != nil {
 			log.Println(e)
@@ -51,7 +74,7 @@ func changeOwner(basePath string, employeeList map[string]int) {
 	}
 }
 
-func DirExpired(basePath string, daysRotation string, usersList []string) error {
+func DirExpired(basePath, group, daysRotation string, usersList []string) error {
 	var err error
 
 	days, err := strconv.Atoi(daysRotation)
@@ -65,7 +88,7 @@ func DirExpired(basePath string, daysRotation string, usersList []string) error 
 	then := nowTime.Add(time.Duration(-daysRotationInMinuts) * time.Hour)
 
 	for _, user := range usersList {
-		fullPathUser := basePath + "/" + user
+		fullPathUser := basePath + "/" + group + "/" + user
 
 		fileInfo, err := os.Stat(fullPathUser)
 		if err != nil {

@@ -33,6 +33,24 @@ func ConIpa(ipaHost, ipaUser, ipaPasswd string) (*freeipa.Client, error) {
 	return c, nil
 
 }
+func (c *Client) GetGroups(ipaGroup string) ([]string, error) {
+
+	r, err := c.con.GroupShow(&freeipa.GroupShowArgs{Cn: *freeipa.String(ipaGroup)}, &freeipa.GroupShowOptionalArgs{})
+
+	if err != nil {
+		if ipaE, ok := err.(*freeipa.Error); ok {
+			log.Printf("FreeIPA error %v: %v\n", ipaE.Code, ipaE.Message)
+			if ipaE.Code == freeipa.NotFoundCode {
+				log.Println("(matched expected error code)")
+			}
+		} else {
+			log.Printf("Other error: %v", err)
+		}
+		return nil, err
+	}
+	groupFreeIpaList := r.Result.MemberGroup
+	return *groupFreeIpaList, nil
+}
 
 func (c *Client) GetUser(ipaGroup string) ([]string, error) {
 	res, err := c.con.GroupShow(&freeipa.GroupShowArgs{Cn: *freeipa.String(ipaGroup)}, &freeipa.GroupShowOptionalArgs{})

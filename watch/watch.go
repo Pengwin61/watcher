@@ -3,9 +3,9 @@ package watch
 import (
 	"log"
 	"time"
+
 	"watcher/authenticators"
 	"watcher/configs"
-	"watcher/connectors"
 	"watcher/core"
 	"watcher/db"
 )
@@ -23,63 +23,63 @@ func RunWatcher(params configs.Params) {
 	}
 	defer conPg.CloseDB()
 
-	conSSH, err := connectors.NewClient(params.ActorsUser, params.ActorsPaswd)
-	if err != nil {
-		log.Fatalf("can not create SSH connection to hosts: %s", err.Error())
-	}
+	// conSSH, err := connectors.NewClient(params.ActorsUser, params.ActorsPaswd)
+	// if err != nil {
+	// 	log.Fatalf("can not create SSH connection to hosts: %s", err.Error())
+	// }
 
 	for {
 
 		if params.Mode == "production" {
 
-			actorsList, err := conPg.GetEntity("uds_actortoken")
-			if err != nil {
-				log.Fatalf("can not get list actors: %s", err.Error())
-			}
+			// actorsList, err := conPg.GetEntity("uds_actortoken")
+			// if err != nil {
+			// 	log.Fatalf("can not get list actors: %s", err.Error())
+			// }
 
-			usersList, err := c.GetUser(params.GroupIpa)
-			if err != nil {
-				log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
-			}
+			// usersList, err := c.GetUser(params.GroupIpa)
+			// if err != nil {
+			// 	log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
+			// }
 
-			userListID, err := c.GetUserID(usersList)
-			if err != nil {
-				log.Printf("can not get user list ID; err: %s", err.Error())
-			}
+			// userListID, err := c.GetUserID(usersList)
+			// if err != nil {
+			// 	log.Printf("can not get user list ID; err: %s", err.Error())
+			// }
 
 			/* Удаление папки */
-			err = core.DirExpired(params.PathHome, params.DaysRotation, usersList)
-			if err != nil {
-				log.Printf("can not delete directory; err: %s", err.Error())
-			}
+			// err = core.DirExpired(params.PathHome, params.DaysRotation, usersList)
+			// if err != nil {
+			// 	log.Printf("can not delete directory; err: %s", err.Error())
+			// }
 
-			err = core.CreateDirectory(params.PathHome, usersList, userListID)
-			if err != nil {
-				log.Printf("can not create directory; err: %s", err.Error())
-			}
+			// err = core.CreateDirectory(params.PathHome, usersList, userListID)
+			// if err != nil {
+			// 	log.Printf("can not create directory; err: %s", err.Error())
+			// }
 
-			sshstdout := conSSH.ConnectHost("x2golistsessions_root", actorsList)
+			// sshstdout := conSSH.ConnectHost("x2golistsessions_root", actorsList)
 
-			x2gosession, err := connectors.GetSessionX2go(sshstdout)
-			if err != nil {
-				log.Printf("list session x2go is empty: %s", err.Error())
-			}
+			// x2gosession, err := connectors.GetSessionX2go(sshstdout)
+			// if err != nil {
+			// 	log.Printf("list session x2go is empty: %s", err.Error())
+			// }
 
 			//
 			//
 
-			udssession, err := conPg.GetNewRequest()
-			if err != nil {
-				log.Fatalf("can not; err: %s", err.Error())
-			}
+			// udssession, err := conPg.GetNewRequest()
+			// if err != nil {
+			// 	log.Fatalf("can not; err: %s", err.Error())
+			// }
 
-			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList,
-				params.Domain, params.ExpirationSession)
-			if err != nil {
-				log.Fatal("can not:", err.Error())
-			}
+			// err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList,
+			// 	params.Domain, params.ExpirationSession)
+			// if err != nil {
+			// 	log.Fatal("can not:", err.Error())
+			// }
 
-			core.ShowSession(x2gosession)
+			// core.ShowSession(x2gosession)
 
 			// err = core.SetQuota(params.SoftQuota, params.HardQuota, usersList)
 			// if err != nil {
@@ -90,26 +90,41 @@ func RunWatcher(params configs.Params) {
 
 			log.Printf("APP MODE:%s", params.Mode)
 
-			usersList, err := c.GetUser(params.GroupIpa)
+			listGroups, err := c.GetGroups(params.GroupIpa)
 			if err != nil {
-				log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
+				log.Printf("can not get groups list in FreeIPA; err: %s", err.Error())
 			}
 
-			userListID, err := c.GetUserID(usersList)
+			err = core.CreateRootDirectory(params.PathHome, listGroups)
 			if err != nil {
-				log.Printf("can not get user list ID; err: %s", err.Error())
+				log.Printf("can not create root directory; err: %s", err.Error())
 			}
 
-			/* Удаление папки */
-			err = core.DirExpired(params.PathHome, params.DaysRotation, usersList)
-			if err != nil {
-				log.Printf("can not delete directory; err: %s", err.Error())
+			for _, group := range listGroups {
+
+				usersList, err := c.GetUser(group)
+				if err != nil {
+					log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
+				}
+
+				userListID, err := c.GetUserID(usersList)
+				if err != nil {
+					log.Printf("can not get user list ID; err: %s", err.Error())
+				}
+
+				err = core.CreateUserDirectory(params.PathHome, group, usersList, userListID)
+				if err != nil {
+					log.Printf("can not create directory; err: %s", err.Error())
+				}
+
+				/* Удаление папки */
+				err = core.DirExpired(params.PathHome, group, params.DaysRotation, usersList)
+				if err != nil {
+					log.Printf("can not delete directory; err: %s", err.Error())
+				}
+
 			}
 
-			err = core.CreateDirectory(params.PathHome, usersList, userListID)
-			if err != nil {
-				log.Printf("can not create directory; err: %s", err.Error())
-			}
 		}
 
 		time.Sleep(params.Schedule)
