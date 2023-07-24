@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -20,11 +21,13 @@ func CreateRootDirectory(basePath string, listGroups []string) error {
 	}
 	for _, group := range listGroups {
 		fullPathGroup := filepath.Join(basePath, group)
-		// fmt.Println("FULL PATH GROUP:", fullPathGroup)
 
 		if _, err := os.Stat(group); os.IsNotExist(err) {
 			err = os.Mkdir(fullPathGroup, 0700)
 			if err != nil {
+				if strings.Contains(err.Error(), "file exists") {
+					continue
+				}
 				return err
 			}
 		}
@@ -45,7 +48,6 @@ func CreateUserDirectory(basePath, group string, users []string, employeeList ma
 
 	for _, user := range userlist {
 		fullPathUser := filepath.Join(basePath, group, user)
-		// fmt.Println("FULL PATH USER:", fullPathUser)
 
 		if _, err := os.Stat(fullPathUser); os.IsNotExist(err) {
 
@@ -106,7 +108,7 @@ func DirExpired(basePath, group, daysRotation string, usersList []string) error 
 			if err != nil {
 				return err
 			}
-			log.Println("Folder", user, "delete", "last modify:", then)
+			log.Println("folder", user, "delete", "last modify:", then)
 		}
 	}
 	return err
