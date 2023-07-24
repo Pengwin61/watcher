@@ -53,9 +53,10 @@ func main() {
 	sslpub := cfg.Section("web").Key("ssl_public").String()
 	sslpriv := cfg.Section("web").Key("ssl_private").String()
 
-	pathFlag := cfg.Section("paths").Key("home_dir").String()
-	daysRotation := cfg.Section("paths").Key("home_dir_days_rotation").String()
-	logsPath := cfg.Section("paths").Key("logs").String()
+	pathHome := cfg.Section("paths").Key("home_dir").String()
+	pathLogs := cfg.Section("paths").Key("logs").String()
+
+	daysRotation := cfg.Section("maintenance").Key("home_dir_days_rotation").String()
 
 	hostIpa := cfg.Section("FreeIpa").Key("host").String()
 	userIpa := cfg.Section("FreeIpa").Key("username").String()
@@ -69,7 +70,7 @@ func main() {
 	hardQuota := cfg.Section("UserQuota").Key("hardQuota").String()
 
 	schedule, _ := time.ParseDuration(*scheduleFlag)
-	basePath := core.CreatePath(pathFlag)
+	basePath := core.CreatePath(pathHome)
 
 	/*
 
@@ -83,7 +84,7 @@ func main() {
 	/*
 	   Logging
 	*/
-	f, err := os.OpenFile(logsPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(pathLogs, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
