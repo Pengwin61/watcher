@@ -68,17 +68,18 @@ func RunWatcher(params configs.Params) {
 			//
 			//
 
-			core.ShowSession(x2gosession)
-
 			udssession, err := conPg.GetNewRequest()
 			if err != nil {
 				log.Fatalf("can not; err: %s", err.Error())
 			}
 
-			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList, params.Domain)
+			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList,
+				params.Domain, params.ExpirationSession)
 			if err != nil {
 				log.Fatal("can not:", err.Error())
 			}
+
+			core.ShowSession(x2gosession)
 
 			// err = core.SetQuota(params.softQuota, params.hardQuota, usersList)
 			// if err != nil {

@@ -16,7 +16,7 @@ type Params struct {
 	UserIpa, UserPassIpa, GroupIpa, ActorsUser, ActorsPaswd,
 	SoftQuota, HardQuota, WebIp, WebUser, WebPass,
 	SslPub, SslPriv string
-	Schedule time.Duration
+	Schedule, ExpirationSession time.Duration
 }
 
 func InitConfigs() Params {
@@ -49,6 +49,7 @@ func InitConfigs() Params {
 	// fmt.Println(pathTest)
 
 	daysRotation := cfg.Section("maintenance").Key("home_dir_days_rotation").String()
+	expirationSession, _ := cfg.Section("maintenance").Key("time_expiration_session").Duration()
 
 	hostIpa := cfg.Section("FreeIpa").Key("host").String()
 	userIpa := cfg.Section("FreeIpa").Key("username").String()
@@ -73,7 +74,8 @@ func InitConfigs() Params {
 		UserIpa: userIpa, UserPassIpa: userPassIpa, GroupIpa: groupIpa,
 		ActorsUser: actorsUser, ActorsPaswd: actorsPaswd, SoftQuota: softQuota,
 		HardQuota: hardQuota, WebIp: webIp, WebUser: webUser, WebPass: webPass,
-		SslPub: sslPub, SslPriv: sslPriv, Schedule: schedule}
+		SslPub: sslPub, SslPriv: sslPriv, Schedule: schedule,
+		ExpirationSession: expirationSession}
 
 	return params
 }

@@ -9,18 +9,16 @@ import (
 	"watcher/db"
 )
 
-var durationSession, _ = time.ParseDuration("4h")
-
 func DiffSession(x2gosession map[string]*connectors.User,
 	udssession map[string]db.UserService,
 	conPg *db.ClientPg, conSsh *connectors.Client,
-	actorsList map[string]string, domain string) error {
+	actorsList map[string]string, domain string, expirationSession time.Duration) error {
 
 	var err error
 
 	for session, v := range x2gosession {
 
-		expired, delta := checkExpirationSession(v.StopDateSession, v.SessionState, v.UserSession)
+		expired, delta := checkExpirationSession(v.StopDateSession, v.SessionState, v.UserSession, expirationSession)
 
 		if expired {
 
@@ -35,7 +33,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 						if err != nil {
 							return err
 						}
-						log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta-durationSession, val.UserServiceId)
+						log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta-expirationSession, val.UserServiceId)
 					}
 				}
 			}
@@ -84,7 +82,7 @@ func convertTime(t string) time.Time {
 	return timeSession
 }
 
-func checkExpirationSession(t, state, user string) (bool, time.Duration) {
+func checkExpirationSession(t, state, user string, durationSession time.Duration) (bool, time.Duration) {
 
 	var msk, _ = time.ParseDuration("3h")
 
