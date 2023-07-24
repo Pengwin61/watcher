@@ -65,7 +65,7 @@ func DirExpired(basePath string, daysRotation string, usersList []string) error 
 	then := nowTime.Add(time.Duration(-daysRotationInMinuts) * time.Hour)
 
 	for _, user := range usersList {
-		fullPathUser := basePath + "/" + user
+		fullPathUser := filepath.Join(basePath, user)
 
 		fileInfo, err := os.Stat(fullPathUser)
 		if err != nil {
