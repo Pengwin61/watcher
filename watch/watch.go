@@ -2,6 +2,7 @@ package watch
 
 import (
 	"log"
+	"strings"
 	"time"
 	"watcher/authenticators"
 	"watcher/configs"
@@ -62,6 +63,9 @@ func RunWatcher(params configs.Params) {
 
 			x2gosession, err := connectors.GetSessionX2go(sshstdout)
 			if err != nil {
+				if strings.Contains(err.Error(), "wrong input") {
+					continue
+				}
 				log.Printf("list session x2go is empty: %s", err.Error())
 			}
 
