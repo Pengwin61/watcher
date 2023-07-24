@@ -50,8 +50,10 @@ func main() {
 	domain := cfg.Section("").Key("domain").String()
 
 	webIp := cfg.Section("web").Key("port").String()
-	sslpub := cfg.Section("web").Key("ssl_public").String()
-	sslpriv := cfg.Section("web").Key("ssl_private").String()
+	webUser := cfg.Section("web").Key("user").String()
+	webPass := cfg.Section("web").Key("password").String()
+	sslPub := cfg.Section("web").Key("ssl_public").String()
+	sslPriv := cfg.Section("web").Key("ssl_private").String()
 
 	pathHome := cfg.Section("paths").Key("home_dir").String()
 	pathLogs := cfg.Section("paths").Key("logs").String()
@@ -104,8 +106,8 @@ func main() {
 	go runWatcher(params, schedule)
 
 	app := new(webapp.Application)
-	app.Auth.Username = "admin"
-	app.Auth.Password = "admin"
+	app.Auth.Username = webUser
+	app.Auth.Password = webPass
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status", app.BasicAuth(app.ProtectedHandler))
@@ -126,7 +128,7 @@ func main() {
 	}
 	log.Printf("starting server on %s", srv.Addr)
 
-	err = srv.ListenAndServeTLS(sslpub, sslpriv)
+	err = srv.ListenAndServeTLS(sslPub, sslPriv)
 	if err != nil {
 		log.Printf("%s", err.Error())
 	}
