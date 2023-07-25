@@ -2,6 +2,7 @@ package watch
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"watcher/authenticators"
@@ -89,6 +90,9 @@ func RunWatcher(params configs.Params) {
 			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList,
 				params.Domain, params.ExpirationSession)
 			if err != nil {
+				if strings.Contains(err.Error(), "wrong input") {
+					continue
+				}
 				log.Fatal("can not:", err.Error())
 			}
 
