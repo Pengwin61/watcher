@@ -51,7 +51,7 @@ func InitConfigs() Params {
 	hostIpa := cfg.Section("FreeIpa").Key("host").String()
 	userIpa := cfg.Section("FreeIpa").Key("username").String()
 	userPassIpa := cfg.Section("FreeIpa").Key("password").String()
-	groupIpa := cfg.Section("FreeIpa").Key("user_group").String()
+	groupIpa := cfg.Section("FreeIpa").Key("master_group").String()
 
 	actorsUser := cfg.Section("servers").Key("username").String()
 	actorsPaswd := cfg.Section("servers").Key("password").String()
