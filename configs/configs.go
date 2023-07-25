@@ -14,8 +14,9 @@ import (
 type Params struct {
 	Mode, Domain, PathHome, PathLogs, DaysRotation, HostIpa,
 	UserIpa, UserPassIpa, GroupIpa, ActorsUser, ActorsPaswd,
-	SoftQuota, HardQuota, WebIp, WebUser, WebPass,
+	SoftQuota, HardQuota, WebUser, WebPass,
 	SslPub, SslPriv string
+	WebPort                     int
 	Schedule, ExpirationSession time.Duration
 }
 
@@ -36,7 +37,7 @@ func InitConfigs() Params {
 	mode := cfg.Section("").Key("app_mode").String()
 	domain := cfg.Section("").Key("domain").String()
 
-	webIp := cfg.Section("web").Key("port").String()
+	webPort, _ := cfg.Section("web").Key("port").Int()
 	webUser := cfg.Section("web").Key("user").String()
 	webPass := cfg.Section("web").Key("password").String()
 	sslPub := cfg.Section("web").Key("ssl_public").String()
@@ -70,7 +71,7 @@ func InitConfigs() Params {
 		PathLogs: pathLogs, DaysRotation: daysRotation, HostIpa: hostIpa,
 		UserIpa: userIpa, UserPassIpa: userPassIpa, GroupIpa: groupIpa,
 		ActorsUser: actorsUser, ActorsPaswd: actorsPaswd, SoftQuota: softQuota,
-		HardQuota: hardQuota, WebIp: webIp, WebUser: webUser, WebPass: webPass,
+		HardQuota: hardQuota, WebPort: webPort, WebUser: webUser, WebPass: webPass,
 		SslPub: sslPub, SslPriv: sslPriv, Schedule: schedule,
 		ExpirationSession: expirationSession}
 
