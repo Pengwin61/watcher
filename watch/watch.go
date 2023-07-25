@@ -107,41 +107,6 @@ func RunWatcher(params configs.Params) {
 
 			log.Printf("APP MODE:%s", params.Mode)
 
-			groupsList, err := c.GetGroups(params.GroupIpa)
-			if err != nil {
-				log.Printf("can not get groups list in FreeIPA; err: %s", err.Error())
-			}
-
-			err = core.CreateRootDirectory(params.PathHome, groupsList)
-			if err != nil {
-				log.Printf("can not create root directory; err: %s", err.Error())
-			}
-
-			for _, group := range groupsList {
-
-				usersList, err := c.GetUser(group)
-				if err != nil {
-					log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
-				}
-
-				userListID, err := c.GetUserID(usersList)
-				if err != nil {
-					log.Printf("can not get user list ID; err: %s", err.Error())
-				}
-
-				err = core.CreateUserDirectory(params.PathHome, group, usersList, userListID)
-				if err != nil {
-					log.Printf("can not create directory; err: %s", err.Error())
-				}
-
-				/* Удаление папки */
-				err = core.DirExpired(params.PathHome, group, params.DaysRotation, usersList)
-				if err != nil {
-					log.Printf("can not delete directory; err: %s", err.Error())
-				}
-
-			}
-
 		}
 
 		time.Sleep(params.Schedule)
