@@ -79,6 +79,9 @@ func RunWatcher(params configs.Params) {
 
 			x2gosession, err := connectors.GetSessionX2go(sshstdout)
 			if err != nil {
+				if strings.Contains(err.Error(), "wrong input") {
+					continue
+				}
 				log.Printf("list session x2go is empty: %s", err.Error())
 			}
 
@@ -90,9 +93,6 @@ func RunWatcher(params configs.Params) {
 			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList,
 				params.Domain, params.ExpirationSession)
 			if err != nil {
-				if strings.Contains(err.Error(), "wrong input") {
-					continue
-				}
 				log.Fatal("can not:", err.Error())
 			}
 
