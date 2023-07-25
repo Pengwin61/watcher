@@ -1,7 +1,5 @@
-./idea/
-./idea
-./vscode/
-./vscode
+.vscode
+.idea
 .env
 settings.cfg
 *.pem
