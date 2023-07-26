@@ -1,7 +1,10 @@
 package configs
 
 import (
+	"bytes"
+	"encoding/base64"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -14,7 +17,7 @@ import (
 type Params struct {
 	Mode, Domain, PathHome, PathLogs, DaysRotation, HostIpa,
 	UserIpa, UserPassIpa, GroupIpa, ActorsUser, ActorsPaswd,
-	SoftQuota, HardQuota, WebIp, WebUser, WebPass,
+	SoftQuota, HardQuota, WebUser, WebPass,
 	SslPub, SslPriv string
 	WebPort                     int
 	Schedule, ExpirationSession time.Duration
@@ -37,7 +40,10 @@ func InitConfigs() Params {
 	mode := cfg.Section("").Key("app_mode").String()
 	domain := cfg.Section("").Key("domain").String()
 
-	webPort, _ := cfg.Section("web").Key("port").Int()
+	webPort, err := cfg.Section("web").Key("port").Int()
+	if err != nil {
+		fmt.Println("can parse port to ini file")
+	}
 	webUser := cfg.Section("web").Key("user").String()
 	webPass := cfg.Section("web").Key("password").String()
 	sslPub := cfg.Section("web").Key("ssl_public").String()
@@ -47,15 +53,30 @@ func InitConfigs() Params {
 	pathLogs := cfg.Section("paths").Key("logs").String()
 
 	daysRotation := cfg.Section("maintenance").Key("home_dir_days_rotation").String()
-	expirationSession, _ := cfg.Section("maintenance").Key("time_expiration_session").Duration()
+	expirationSession, err := cfg.Section("maintenance").Key("time_expiration_session").Duration()
+	if err != nil {
+		fmt.Println("can parse time_expiration_session to ini file")
+	}
 
 	hostIpa := cfg.Section("FreeIpa").Key("host").String()
 	userIpa := cfg.Section("FreeIpa").Key("username").String()
 	userPassIpa := cfg.Section("FreeIpa").Key("password").String()
+
+	userPassIpa, err = decodingPassword(userPassIpa)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println("userPassIpa", userPassIpa)
 	groupIpa := cfg.Section("FreeIpa").Key("master_group").String()
 
 	actorsUser := cfg.Section("servers").Key("username").String()
 	actorsPaswd := cfg.Section("servers").Key("password").String()
+
+	actorsPaswd, err = decodingPassword(actorsPaswd)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println("actorsPaswd", actorsPaswd)
 
 	softQuota := cfg.Section("UserQuota").Key("softQuota").String()
 	hardQuota := cfg.Section("UserQuota").Key("hardQuota").String()
@@ -76,4 +97,15 @@ func InitConfigs() Params {
 		ExpirationSession: expirationSession}
 
 	return params
+}
+
+func decodingPassword(encodePassword string) (string, error) {
+
+	decodePass, err := base64.StdEncoding.DecodeString(encodePassword)
+	if err != nil {
+		return "", err
+	}
+	password := bytes.NewBuffer(decodePass).String()
+
+	return password, err
 }
