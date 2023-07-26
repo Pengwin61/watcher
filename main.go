@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -52,7 +53,7 @@ func main() {
 	//
 	//
 	srv := &http.Server{
-		Addr:         params.WebIp,
+		Addr:         fmt.Sprint("0.0.0.0:", params.WebPort),
 		Handler:      mux,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
