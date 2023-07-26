@@ -2,7 +2,6 @@ package watch
 
 import (
 	"log"
-	"strings"
 	"time"
 	"watcher/authenticators"
 	"watcher/configs"
@@ -59,13 +58,13 @@ func RunWatcher(params configs.Params) {
 				log.Printf("can not create directory; err: %s", err.Error())
 			}
 
-			sshstdout := conSSH.ConnectHost("x2golistsessions_root", actorsList)
+			sshstdout := conSSH.ConnectHost("sudo x2golistsessions_root", actorsList)
 
 			x2gosession, err := connectors.GetSessionX2go(sshstdout)
 			if err != nil {
-				if strings.Contains(err.Error(), "wrong input") {
-					continue
-				}
+				// if strings.Contains(err.Error(), "wrong input") {
+				// 	continue
+				// }
 				log.Printf("list session x2go is empty: %s", err.Error())
 			}
 

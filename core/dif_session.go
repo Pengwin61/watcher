@@ -27,7 +27,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 				if hostEqual {
 					if host, ok := actorsList[hostname]; ok {
-						conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session")
+						conSsh.TerminateSession(v.SessionPid, host, "sudo x2goterminate-session")
 
 						err := conPg.UpdateTab(val.UserServiceId)
 						if err != nil {
@@ -63,7 +63,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 				hostname = strings.TrimRight(hostname, fmt.Sprint(".", domain))
 
 				if host, ok := actorsList[hostname]; ok {
-					conSsh.TerminateSession(val.SessionPid, host, "x2goterminate-session")
+					conSsh.TerminateSession(val.SessionPid, host, "sudo x2goterminate-session")
 					log.Printf("session %s terminated, user %s logged in incorrectly.", val.SessionPid, val.UserSession)
 				}
 			}
