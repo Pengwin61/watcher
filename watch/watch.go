@@ -75,7 +75,7 @@ func RunWatcher(params configs.Params) {
 
 			}
 
-			sshstdout := conSSH.ConnectHost("x2golistsessions_root", actorsList)
+			sshstdout := conSSH.ConnectHost("sudo x2golistsessions_root", actorsList)
 
 			x2gosession, err := connectors.GetSessionX2go(sshstdout)
 			if err != nil {
