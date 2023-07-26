@@ -59,6 +59,9 @@ func RunWatcher(params configs.Params) {
 			}
 
 			sshstdout := conSSH.ConnectHost("sudo x2golistsessions_root", actorsList)
+			if sshstdout == "" {
+				time.Sleep(params.Schedule)
+			}
 
 			x2gosession, err := connectors.GetSessionX2go(sshstdout)
 			if err != nil {
