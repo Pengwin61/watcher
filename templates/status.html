@@ -3,26 +3,19 @@
     <head>
         <meta charset="UTF-8">
         <title>OpenUDS users session</title>
+        <link href="css/style_statys.css" rel="stylesheet" type="text/css" />
+        <link rel="icon" type="image/x-icon" href="./images/bosch-favicon.ico">
     </head>
     <body>
         <table id="myTable">
-                <style>
-                    td{
-                        width: 500px; 
-                        height:30px; 
-                        border: solid 1px silver; 
-                        text-align:center;
-                    }
-                </style>
-            </ul>
-
             <thead>
                 <th onclick="sortTable(0)">Username</th>
                 <th onclick="sortTable(1)">Status</th>
                 <th onclick="sortTable(2)">Hostname</th>
-                <th onclick="sortTable(3)">StartSession</th>
-                <th onclick="sortTable(4)">StopSession</th>
+                <th onclick="sortTable(3)">Start session</th>
+                <th onclick="sortTable(4)">Stop session</th>
             </thead>
+
             {{range . }}
             <tr>	
                 <td>{{.Username}}</td>
@@ -31,9 +24,16 @@
                 <td>{{.StartSession}}</td>
                 <td>{{.StopSession}} 
             </tr>
-            
+
+            <td> kirill.rak </td>
+            <td> R </td>
+            <td> mk0vm1032.bosch-ru.ru </td>
+            <td> 2023-07-29T10:27:01 </td>
+            <td> 2023-07-29T10:27:02 </td>
+
             {{end}}
         </table>
+
         <script>
             function sortTable(n) {
               var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
@@ -92,11 +92,3 @@
             </script>
     </body>
 </html>
-
-
-
-<!--
-    <div style="color:red;">Кнопка</div><input type="button" value="Удалить">
-
-    <input type='button' value='Удалить'> </td>
--->
