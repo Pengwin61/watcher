@@ -66,7 +66,7 @@ func InitConfigs() Params {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println("userPassIpa", userPassIpa)
+
 	groupIpa := cfg.Section("FreeIpa").Key("master_group").String()
 
 	actorsUser := cfg.Section("servers").Key("username").String()
@@ -76,7 +76,6 @@ func InitConfigs() Params {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println("actorsPaswd", actorsPaswd)
 
 	softQuota := cfg.Section("UserQuota").Key("softQuota").String()
 	hardQuota := cfg.Section("UserQuota").Key("hardQuota").String()
