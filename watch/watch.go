@@ -2,7 +2,9 @@ package watch
 
 import (
 	"log"
+	"strings"
 	"time"
+
 	"watcher/authenticators"
 	"watcher/configs"
 	"watcher/connectors"
@@ -32,32 +34,47 @@ func RunWatcher(params configs.Params) {
 
 		if params.Mode == "production" {
 
+			/*  Get list uds_actors */
 			actorsList, err := conPg.GetEntity("uds_actortoken")
 			if err != nil {
 				log.Fatalf("can not get list actors: %s", err.Error())
 			}
 
-			usersList, err := c.GetUser(params.GroupIpa)
+			groupsList, err := c.GetGroups(params.GroupIpa)
 			if err != nil {
-				log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
+				log.Printf("can not get groups list in FreeIPA; err: %s", err.Error())
 			}
 
-			userListID, err := c.GetUserID(usersList)
+			err = core.CreateRootDirectory(params.PathHome, groupsList)
 			if err != nil {
-				log.Printf("can not get user list ID; err: %s", err.Error())
+				log.Printf("can not create root directory; err: %s", err.Error())
 			}
 
-			/* Удаление папки */
-			err = core.DirExpired(params.PathHome, params.DaysRotation, usersList)
-			if err != nil {
-				log.Printf("can not delete directory; err: %s", err.Error())
-			}
+			for _, group := range groupsList {
 
-			err = core.CreateDirectory(params.PathHome, usersList, userListID)
-			if err != nil {
-				log.Printf("can not create directory; err: %s", err.Error())
-			}
+				usersList, err := c.GetUser(group)
+				if err != nil {
+					log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
+				}
 
+				userListID, err := c.GetUserID(usersList)
+				if err != nil {
+					log.Printf("can not get user list ID; err: %s", err.Error())
+				}
+
+				err = core.CreateUserDirectory(params.PathHome, group, usersList, userListID)
+				if err != nil {
+					log.Printf("can not create directory; err: %s", err.Error())
+				}
+
+				/* Удаление папки */
+				err = core.DirExpired(params.PathHome, group, params.DaysRotation, usersList)
+				if err != nil {
+					log.Printf("can not delete directory; err: %s", err.Error())
+				}
+
+			}
+      
 			sshstdout := conSSH.ConnectHost("sudo x2golistsessions_root", actorsList)
 			if sshstdout == "" {
 				time.Sleep(params.Schedule)
@@ -65,14 +82,11 @@ func RunWatcher(params configs.Params) {
 
 			x2gosession, err := connectors.GetSessionX2go(sshstdout)
 			if err != nil {
-				// if strings.Contains(err.Error(), "wrong input") {
-				// 	continue
-				// }
+				if strings.Contains(err.Error(), "wrong input") {
+					continue
+				}
 				log.Printf("list session x2go is empty: %s", err.Error())
 			}
-
-			//
-			//
 
 			udssession, err := conPg.GetNewRequest()
 			if err != nil {
