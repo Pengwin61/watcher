@@ -69,8 +69,15 @@ func (c *Client) GetUser(ipaGroup string) ([]string, error) {
 	return *userFreeIpaList, nil
 }
 
-func (c *Client) GetUserID(userlist []string) (map[string]int, error) {
-	employee := make(map[string]int)
+type Employee struct {
+	Username   string
+	UidNumber  int
+	GuidNumber int
+}
+
+func (c *Client) GetUserID(userlist []string) (map[string]Employee, error) {
+
+	employeeList := map[string]Employee{}
 
 	for _, user := range userlist {
 		res2, err := c.con.UserShow(&freeipa.UserShowArgs{}, &freeipa.UserShowOptionalArgs{UID: freeipa.String(user)})
@@ -79,11 +86,12 @@ func (c *Client) GetUserID(userlist []string) (map[string]int, error) {
 			return nil, err
 		}
 
-		username := res2.Result.UID
-		uidnumber := res2.Result.Uidnumber
+		employee := Employee{
+			Username:   res2.Result.UID,
+			UidNumber:  *res2.Result.Uidnumber,
+			GuidNumber: *res2.Result.Gidnumber}
 
-		employee[username] = *uidnumber
+		employeeList[res2.Result.UID] = employee
 	}
-
-	return employee, nil
+	return employeeList, nil
 }

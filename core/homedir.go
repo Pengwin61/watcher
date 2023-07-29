@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"watcher/authenticators"
 )
 
 func CreatePath(pathFlag string) string {
@@ -37,7 +38,9 @@ func CreateRootDirectory(basePath string, listGroups []string) error {
 	return err
 }
 
-func CreateUserDirectory(basePath, group string, users []string, employeeList map[string]int) error {
+func CreateUserDirectory(basePath, group string, users []string,
+	employeeList map[string]authenticators.Employee) error {
+
 	dir, err := os.Open(basePath)
 	if err != nil {
 		return err
@@ -64,13 +67,13 @@ func CreateUserDirectory(basePath, group string, users []string, employeeList ma
 	return err
 }
 
-func changeOwner(basePath, group string, employeeList map[string]int) {
+func changeOwner(basePath, group string, employeeList map[string]authenticators.Employee) {
 
-	for key, value := range employeeList {
-		fullPath := filepath.Join(basePath, group, key)
-		e := os.Chown(fullPath, value, value)
-		if e != nil {
-			log.Println(e)
+	for username, value := range employeeList {
+		fullPath := filepath.Join(basePath, group, username)
+		err := os.Chown(fullPath, value.UidNumber, value.GuidNumber)
+		if err != nil {
+			log.Println("can not change owner folder:", err)
 		}
 	}
 }
