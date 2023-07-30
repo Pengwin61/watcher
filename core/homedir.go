@@ -46,10 +46,7 @@ func CreateUserDirectory(basePath, group string, users []string,
 		return err
 	}
 
-	var userlist []string
-	userlist = append(userlist, users...)
-
-	for _, user := range userlist {
+	for _, user := range users {
 		fullPathUser := filepath.Join(basePath, group, user)
 
 		if _, err := os.Stat(fullPathUser); os.IsNotExist(err) {
