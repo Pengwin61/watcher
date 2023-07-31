@@ -108,7 +108,7 @@ func DirExpired(basePath, group, daysRotation string, usersList []string) error 
 			if err != nil {
 				return err
 			}
-			log.Println("folder", user, "delete", "last modify:", then.Truncate(time.Minute))
+			log.Printf("folder %s delete, last modify: %s", fullPathUser, then.Truncate(time.Minute))
 		}
 	}
 	return err
