@@ -55,6 +55,7 @@ func CreateUserDirectory(basePath, group string, users []string,
 			if err != nil {
 				return err
 			}
+			log.Printf("folder is created %s ", fullPathUser)
 		}
 	}
 	changeOwner(basePath, group, employeeList)
