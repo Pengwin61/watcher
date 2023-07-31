@@ -50,7 +50,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 		for _, k := range diff {
 			if val, ok := udssession[k]; ok {
 				err := conPg.UpdateTab(val.UserServiceId)
-				log.Printf("session %s removed from database ID:%d, watcher didn't find session record in x2go, state:%s", val.Username, val.UserServiceId, val.State)
+				log.Printf("session %s removed from database ID:%d, watcher didn't find session record in x2go", val.Username, val.UserServiceId)
 
 				if err != nil {
 					return err
