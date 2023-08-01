@@ -8,6 +8,12 @@ import (
 	"github.com/ccin2p3/go-freeipa/freeipa"
 )
 
+type Employee struct {
+	Username   string
+	UidNumber  int
+	GuidNumber int
+}
+
 type Client struct {
 	con *freeipa.Client
 }
@@ -65,14 +71,13 @@ func (c *Client) GetUser(ipaGroup string) ([]string, error) {
 		}
 		return nil, err
 	}
-	userFreeIpaList := res.Result.MemberUser
-	return *userFreeIpaList, nil
-}
+	if res.Result.MemberUser != nil {
+		result := res.Result.MemberUser
 
-type Employee struct {
-	Username   string
-	UidNumber  int
-	GuidNumber int
+		return *result, nil
+	}
+
+	return nil, nil
 }
 
 func (c *Client) GetUserID(userlist []string) (map[string]Employee, error) {

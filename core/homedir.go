@@ -114,3 +114,61 @@ func DirExpired(basePath, group, daysRotation string, usersList []string) error 
 	}
 	return err
 }
+
+func DeleteFolders(basePath, group string, diffListFolder []string) (err error) {
+	for _, user := range diffListFolder {
+		fullPathUser := filepath.Join(basePath, group, user)
+
+		err = os.RemoveAll(fullPathUser)
+		if err != nil {
+			return err
+		}
+		log.Printf("folder delete %s, watcher did not find the user %s in the group %s", fullPathUser, user, group)
+	}
+	return err
+}
+
+func FindHomeFolder(basePath, group string) ([]string, error) {
+	var userList []string
+	var err error
+	fullPath := filepath.Join(basePath, group)
+
+	dir, err := os.Open(fullPath)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer dir.Close()
+
+	folder, err := dir.ReadDir(-1)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for _, user := range folder {
+		if !user.IsDir() {
+			continue
+		}
+		// if !strings.Contains(user.Name(), ".") {
+		// 	continue
+		// }
+		userList = append(userList, user.Name())
+	}
+	return userList, err
+}
+
+func DiffDirectory(folderList, users []string) (diff []string) {
+	m := make(map[string]bool)
+
+	for _, item := range users {
+		m[item] = true
+	}
+
+	for _, item := range folderList {
+		if _, ok := m[item]; !ok {
+			diff = append(diff, item)
+		}
+	}
+	return
+}

@@ -56,6 +56,7 @@ func RunWatcher(params configs.Params) {
 				if err != nil {
 					log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
 				}
+
 				if usersList != nil {
 
 					userListID, err := c.GetUserID(usersList)
@@ -67,7 +68,22 @@ func RunWatcher(params configs.Params) {
 					if err != nil {
 						log.Printf("can not create directory; err: %s", err.Error())
 					}
+
+					folderList, err := core.FindHomeFolder(params.PathHome, group)
+					if err != nil {
+						log.Printf("can not get list folder; err:%s", err)
+					}
+
+					diffListFolder := core.DiffDirectory(folderList, usersList)
+					if diffListFolder != nil {
+						err := core.DeleteFolders(params.PathHome, group, diffListFolder)
+						if err != nil {
+							log.Printf("can not delete folder; err:%s", err)
+						}
+					}
+
 				}
+
 				/* Удаление папки */
 				err = core.DirExpired(params.PathHome, group, params.DaysRotation, usersList)
 				if err != nil {
