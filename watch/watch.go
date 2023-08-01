@@ -56,23 +56,23 @@ func RunWatcher(params configs.Params) {
 				if err != nil {
 					log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
 				}
+				if usersList != nil {
 
-				userListID, err := c.GetUserID(usersList)
-				if err != nil {
-					log.Printf("can not get user list ID; err: %s", err.Error())
+					userListID, err := c.GetUserID(usersList)
+					if err != nil {
+						log.Printf("can not get user list ID; err: %s", err.Error())
+					}
+
+					err = core.CreateUserDirectory(params.PathHome, group, usersList, userListID)
+					if err != nil {
+						log.Printf("can not create directory; err: %s", err.Error())
+					}
 				}
-
-				err = core.CreateUserDirectory(params.PathHome, group, usersList, userListID)
-				if err != nil {
-					log.Printf("can not create directory; err: %s", err.Error())
-				}
-
 				/* Удаление папки */
 				err = core.DirExpired(params.PathHome, group, params.DaysRotation, usersList)
 				if err != nil {
 					log.Printf("can not delete directory; err: %s", err.Error())
 				}
-
 			}
 			sshstdout := conSSH.ConnectHost("sudo x2golistsessions_root", actorsList)
 			if sshstdout == "" {
