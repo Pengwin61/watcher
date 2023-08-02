@@ -82,7 +82,8 @@ func convertTime(t string) time.Time {
 	return timeSession
 }
 
-func checkExpirationSession(t, state, user string, durationSession time.Duration) (bool, time.Duration) {
+func checkExpirationSession(t, state, user string,
+	durationSession time.Duration) (bool, time.Duration) {
 
 	var msk, _ = time.ParseDuration("3h")
 

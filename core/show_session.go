@@ -17,7 +17,11 @@ func ShowSession(x2gosession map[string]*connectors.User) {
 	for k, v := range x2gosession {
 
 		vTmp := ViewSession{
-			Username: k, Status: v.SessionState, Hostname: v.Hostname, StartSession: v.StartDateSession, StopSession: v.StopDateSession}
+			Username:     k,
+			Status:       v.SessionState,
+			Hostname:     v.Hostname,
+			StartSession: v.StartDateSession,
+			StopSession:  v.StopDateSession}
 		Tmp = append(Tmp, vTmp)
 	}
 }
