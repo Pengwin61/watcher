@@ -7,15 +7,14 @@ import (
 )
 
 type UserService struct {
-	UserServiceId int
-	SrcIP         string
-	State         string
-	InUse         bool
-	InUseDate     string
-	DepSvcID      int
-	DepSvcName    string
-	UserID        int
-	Username      string
+	DbID       int
+	State      string
+	InUse      bool
+	InUseDate  string
+	DepSvcID   int
+	DepSvcName string
+	UserID     int
+	Username   string
 }
 
 func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
@@ -26,7 +25,7 @@ func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 
 	// формируем sql string
 	sql, args, err := squirrel.
-		Select("public.uds__user_service.id, src_ip, public.uds__user_service.state, in_use , in_use_date, deployed_service_id, user_id, public.uds__deployed_service.name, public.uds_user.name").
+		Select("public.uds__user_service.id, public.uds__user_service.state, in_use , in_use_date, deployed_service_id, user_id, public.uds__deployed_service.name, public.uds_user.name").
 		From("public.uds__user_service").
 		Join("uds__deployed_service on deployed_service_id = public.uds__deployed_service.id").
 		Join("uds_user on user_id = uds_user.id").
@@ -43,7 +42,7 @@ func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 	defer result.Close()
 
 	for result.Next() {
-		if err := result.Scan(&tmp.UserServiceId, &tmp.SrcIP, &tmp.State, &tmp.InUse,
+		if err := result.Scan(&tmp.DbID, &tmp.State, &tmp.InUse,
 			&tmp.InUseDate, &tmp.DepSvcID, &tmp.UserID, &tmp.DepSvcName, &tmp.Username); err != nil {
 			return nil, err
 		}

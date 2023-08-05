@@ -18,7 +18,7 @@ func DiffSession(x2gosession map[string]*connectors.User,
 
 	for session, v := range x2gosession {
 
-		expired, delta := checkExpirationSession(v.StopDateSession, v.SessionState, v.UserSession, expirationSession)
+		expired, delta := checkExpirationSession(v.StopDateSession, v.SessionState, expirationSession)
 
 		if expired {
 
@@ -29,11 +29,11 @@ func DiffSession(x2gosession map[string]*connectors.User,
 					if host, ok := actorsList[hostname]; ok {
 						conSsh.TerminateSession(v.SessionPid, host, "sudo x2goterminate-session")
 
-						err := conPg.UpdateTab(val.UserServiceId)
+						err := conPg.UpdateTab(val.DbID)
 						if err != nil {
 							return err
 						}
-						log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta-expirationSession, val.UserServiceId)
+						log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta-expirationSession, val.DbID)
 					}
 				}
 			}
@@ -49,8 +49,8 @@ func DiffSession(x2gosession map[string]*connectors.User,
 		// deletes the session when the user presses the logoff button
 		for _, k := range diff {
 			if val, ok := udssession[k]; ok {
-				err := conPg.UpdateTab(val.UserServiceId)
-				log.Printf("session %s removed from database ID:%d, watcher didn't find session record in x2go", val.Username, val.UserServiceId)
+				err := conPg.UpdateTab(val.DbID)
+				log.Printf("session %s removed from database ID:%d, watcher didn't find session record in x2go", val.Username, val.DbID)
 
 				if err != nil {
 					return err
@@ -82,7 +82,7 @@ func convertTime(t string) time.Time {
 	return timeSession
 }
 
-func checkExpirationSession(t, state, user string,
+func checkExpirationSession(t, state string,
 	durationSession time.Duration) (bool, time.Duration) {
 
 	var msk, _ = time.ParseDuration("3h")

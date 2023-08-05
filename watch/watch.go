@@ -1,6 +1,7 @@
 package watch
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -107,6 +108,12 @@ func RunWatcher(params configs.Params) {
 			if err != nil {
 				log.Fatalf("can not; err: %s", err.Error())
 			}
+
+			pers := core.MergeSession(x2gosession, udssession)
+
+			fmt.Println("TMP:", pers)
+
+			core.NewDiffer(pers, params.ExpirationSession)
 
 			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList,
 				params.Domain, params.ExpirationSession)
