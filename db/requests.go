@@ -1,7 +1,6 @@
 package db
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
@@ -31,7 +30,7 @@ func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 		From("public.uds__user_service").
 		Join("uds__deployed_service on deployed_service_id = public.uds__deployed_service.id").
 		Join("uds_user on user_id = uds_user.id").
-		Where("public.uds__user_service.state = 'U'").ToSql()
+		Where("public.uds__user_service.state = 'U'").PlaceholderFormat(squirrel.Dollar).ToSql()
 	if err != nil {
 		return nil, err
 	}
@@ -83,16 +82,13 @@ func (c *ClientPg) GetEntity(entity string) (map[string]string, error) {
 
 }
 func (c *ClientPg) UpdateTab(UserServiceId int) error {
-	// _, err := c.condb.Exec("update public.uds__user_service set state = $1, in_use= $2 where id = $3",
-	// 	"S", "false", UserServiceId)
 
-	// return err
-	sql, args, err := squirrel.Update("public.uds__user_service").Set("state", "S").Set("in_use", false).Where(squirrel.Eq{"id": UserServiceId}).ToSql()
+	sql, args, err := squirrel.
+		Update("public.uds__user_service").Set("state", "S").Set("in_use", false).
+		Where(squirrel.Eq{"id": UserServiceId}).PlaceholderFormat(squirrel.Dollar).ToSql()
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("sql:", sql, "args:", args)
 
 	_, err = c.condb.Exec(sql, args...)
 	if err != nil {
@@ -101,15 +97,4 @@ func (c *ClientPg) UpdateTab(UserServiceId int) error {
 	}
 
 	return err
-}
-
-func (c *ClientPg) UpdateDB() (sql.Result, error) {
-	//
-	result, err := c.condb.Exec("update public.uds__user_service set state = $1, in_use= $2 where state = $3",
-		"S", "false", "U")
-	if err != nil {
-		return nil, err
-	}
-
-	return result, err
 }
