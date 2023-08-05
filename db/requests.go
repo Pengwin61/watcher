@@ -7,15 +7,14 @@ import (
 )
 
 type UserService struct {
-	UserServiceId int
-	SrcIP         string
-	State         string
-	InUse         bool
-	InUseDate     string
-	DepSvcID      int
-	DepSvcName    string
-	UserID        int
-	Username      string
+	DbID       int
+	State      string
+	InUse      bool
+	InUseDate  string
+	DepSvcID   int
+	DepSvcName string
+	UserID     int
+	Username   string
 }
 
 func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
@@ -43,7 +42,7 @@ func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 	defer result.Close()
 
 	for result.Next() {
-		if err := result.Scan(&tmp.UserServiceId, &tmp.SrcIP, &tmp.State, &tmp.InUse,
+		if err := result.Scan(&tmp.DbID, &tmp.State, &tmp.InUse,
 			&tmp.InUseDate, &tmp.DepSvcID, &tmp.UserID, &tmp.DepSvcName, &tmp.Username); err != nil {
 			return nil, err
 		}
