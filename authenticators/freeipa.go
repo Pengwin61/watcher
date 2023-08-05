@@ -8,6 +8,12 @@ import (
 	"github.com/ccin2p3/go-freeipa/freeipa"
 )
 
+type Employee struct {
+	Username   string
+	UidNumber  int
+	GuidNumber int
+}
+
 type Client struct {
 	con *freeipa.Client
 }
@@ -33,6 +39,24 @@ func ConIpa(ipaHost, ipaUser, ipaPasswd string) (*freeipa.Client, error) {
 	return c, nil
 
 }
+func (c *Client) GetGroups(ipaGroup string) ([]string, error) {
+
+	r, err := c.con.GroupShow(&freeipa.GroupShowArgs{Cn: *freeipa.String(ipaGroup)}, &freeipa.GroupShowOptionalArgs{})
+
+	if err != nil {
+		if ipaE, ok := err.(*freeipa.Error); ok {
+			log.Printf("FreeIPA error %v: %v\n", ipaE.Code, ipaE.Message)
+			if ipaE.Code == freeipa.NotFoundCode {
+				log.Println("(matched expected error code)")
+			}
+		} else {
+			log.Printf("Other error: %v", err)
+		}
+		return nil, err
+	}
+	groupFreeIpaList := r.Result.MemberGroup
+	return *groupFreeIpaList, nil
+}
 
 func (c *Client) GetUser(ipaGroup string) ([]string, error) {
 	res, err := c.con.GroupShow(&freeipa.GroupShowArgs{Cn: *freeipa.String(ipaGroup)}, &freeipa.GroupShowOptionalArgs{})
@@ -47,12 +71,18 @@ func (c *Client) GetUser(ipaGroup string) ([]string, error) {
 		}
 		return nil, err
 	}
-	userFreeIpaList := res.Result.MemberUser
-	return *userFreeIpaList, nil
+	if res.Result.MemberUser != nil {
+		result := res.Result.MemberUser
+
+		return *result, nil
+	}
+
+	return nil, nil
 }
 
-func (c *Client) GetUserID(userlist []string) (map[string]int, error) {
-	employee := make(map[string]int)
+func (c *Client) GetUserID(userlist []string) (map[string]Employee, error) {
+
+	employeeList := map[string]Employee{}
 
 	for _, user := range userlist {
 		res2, err := c.con.UserShow(&freeipa.UserShowArgs{}, &freeipa.UserShowOptionalArgs{UID: freeipa.String(user)})
@@ -61,11 +91,12 @@ func (c *Client) GetUserID(userlist []string) (map[string]int, error) {
 			return nil, err
 		}
 
-		username := res2.Result.UID
-		uidnumber := res2.Result.Uidnumber
+		employee := Employee{
+			Username:   res2.Result.UID,
+			UidNumber:  *res2.Result.Uidnumber,
+			GuidNumber: *res2.Result.Gidnumber}
 
-		employee[username] = *uidnumber
+		employeeList[res2.Result.UID] = employee
 	}
-
-	return employee, nil
+	return employeeList, nil
 }

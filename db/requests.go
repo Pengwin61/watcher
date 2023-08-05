@@ -6,29 +6,22 @@ import (
 )
 
 type UserService struct {
-	User_service_id int
-	SrcIP           string
-	State           string
-	InUse           bool
-	InUseDate       string
-	DepSvcID        int
-	DepSvcName      string
-	UserID          int
-	Username        string
+	UserServiceId int
+	SrcIP         string
+	State         string
+	InUse         bool
+	InUseDate     string
+	DepSvcID      int
+	DepSvcName    string
+	UserID        int
+	Username      string
 }
 
 func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
-	storage := map[string]UserService{}
 
-	var idSession int
-	var srcIp string
-	var userState string
-	var inUse bool
-	var inUseDate string
-	var depsrvID int
-	var userID int
-	var depsvcname string
-	var username string
+	var tmp UserService
+
+	storage := map[string]UserService{}
 
 	sqlselect := "SELECT public.uds__user_service.id, src_ip, public.uds__user_service.state, in_use , in_use_date, deployed_service_id, user_id, public.uds__deployed_service.name, public.uds_user.name"
 	sqlfrom := " FROM public.uds__user_service"
@@ -38,19 +31,18 @@ func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer result.Close()
+
 	for result.Next() {
-		if err := result.Scan(&idSession, &srcIp, &userState, &inUse, &inUseDate, &depsrvID, &userID, &depsvcname, &username); err != nil {
+		if err := result.Scan(&tmp.UserServiceId, &tmp.SrcIP, &tmp.State, &tmp.InUse,
+			&tmp.InUseDate, &tmp.DepSvcID, &tmp.UserID, &tmp.DepSvcName, &tmp.Username); err != nil {
 			return nil, err
 		}
-
-		var user = UserService{User_service_id: idSession, SrcIP: srcIp,
-			State: userState, InUse: inUse, InUseDate: inUseDate,
-			DepSvcID: depsrvID, DepSvcName: depsvcname, UserID: userID, Username: username}
-
-		storage[username] = user
+		storage[tmp.Username] = tmp
 	}
 
-	return storage, err
+	return storage, result.Err()
 }
 
 func (c *ClientPg) GetEntity(entity string) (map[string]string, error) {
@@ -65,6 +57,9 @@ func (c *ClientPg) GetEntity(entity string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer result.Close()
+
 	for result.Next() {
 		if err := result.Scan(&ip, &hostname); err != nil {
 			return nil, err
@@ -72,12 +67,12 @@ func (c *ClientPg) GetEntity(entity string) (map[string]string, error) {
 		entityList[hostname] = ip
 	}
 
-	return entityList, err
+	return entityList, result.Err()
 
 }
-func (c *ClientPg) UpdateTab(User_service_id int) error {
+func (c *ClientPg) UpdateTab(UserServiceId int) error {
 	_, err := c.condb.Exec("update public.uds__user_service set state = $1, in_use= $2 where id = $3",
-		"S", "false", User_service_id)
+		"S", "false", UserServiceId)
 
 	return err
 }
@@ -89,14 +84,6 @@ func (c *ClientPg) UpdateDB() (sql.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result, err
-}
 
-func (c *ClientPg) UpdateDBtest() (sql.Result, error) {
-	result, err := c.condb.Exec("update public.uds_authenticator set priority = $1 where priority = $2",
-		"30", "1")
-	if err != nil {
-		return nil, err
-	}
 	return result, err
 }

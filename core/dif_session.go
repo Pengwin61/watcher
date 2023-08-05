@@ -9,75 +9,66 @@ import (
 	"watcher/db"
 )
 
-var dur, _ = time.ParseDuration("4h")
-var isExpired bool
-
 func DiffSession(x2gosession map[string]*connectors.User,
 	udssession map[string]db.UserService,
 	conPg *db.ClientPg, conSsh *connectors.Client,
-	actorsList map[string]string, domain string) error {
+	actorsList map[string]string, domain string, expirationSession time.Duration) error {
 
 	var err error
 
 	for session, v := range x2gosession {
-		// fmt.Println("все сессии X2GOSESSION:", session, v)
-		if v.SessionState == "S" {
 
-			if checkExpiration(v.StopDateSession) {
+		expired, delta := checkExpirationSession(v.StopDateSession, v.SessionState, v.UserSession, expirationSession)
 
-				// fmt.Printf("Session Expiration: | %s | %s | %s | %s |\n",
-				// 	v.UserSession, v.SessionState, v.Hostname, v.StopDateSession)
-				if val, ok := udssession[session]; ok {
-					// fmt.Println("IN PG", "val:", val, ok)
-					if checkHostMatches(v.Hostname, val.DepSvcName, domain) {
-						// fmt.Println(v.Hostname) //mk0vm1032.bosch-ru.ru
-						hostname := strings.TrimRight(v.Hostname, domain)
+		if expired {
 
-						if host, ok := actorsList[hostname]; ok {
-							// fmt.Println("ActorList:",actorsList, "HOST:", host )
-							conSsh.TerminateSession(v.SessionPid, host, "x2goterminate-session", conSsh)
+			if val, ok := udssession[session]; ok {
+				hostEqual, hostname := checkHostMatches(v.Hostname, val.DepSvcName, domain)
 
-							// fmt.Println(val.User_service_id, val.UserID, val.Username)
-							err := conPg.UpdateTab(val.User_service_id)
-							if err != nil {
-								return err
-							}
+				if hostEqual {
+					if host, ok := actorsList[hostname]; ok {
+						conSsh.TerminateSession(v.SessionPid, host, "sudo x2goterminate-session")
+
+						err := conPg.UpdateTab(val.UserServiceId)
+						if err != nil {
+							return err
 						}
+						log.Printf("session %s expired, overtime:%s update database ID:%d", v.UserSession, delta-expirationSession, val.UserServiceId)
 					}
 				}
 			}
-		} else {
-			log.Printf("X2GO RUN SESSION: | %s | %s | %s | %s | %s |\n",
-				v.UserSession, v.SessionState, v.Hostname, v.StartDateSession, v.StopDateSession)
-
+		}
+		if !expired && v.SessionState != "S" {
+			log.Printf("X2GO RUN SESSION: | %20s | %s | %s | %s | %s | %t\n",
+				v.UserSession, v.SessionState, v.Hostname, v.StartDateSession, v.StopDateSession, expired)
 		}
 
 		/* check diff sessions */
 		diff := difference(x2gosession, udssession)
-		// log.Println("session removed from database:", diff)
 
+		// deletes the session when the user presses the logoff button
 		for _, k := range diff {
 			if val, ok := udssession[k]; ok {
-				err := conPg.UpdateTab(val.User_service_id)
+				err := conPg.UpdateTab(val.UserServiceId)
+				log.Printf("session %s removed from database ID:%d, watcher didn't find session record in x2go", val.Username, val.UserServiceId)
 
 				if err != nil {
 					return err
 				}
 			}
+			// deletes session when user connected bypassing openuds
 			if val, ok := x2gosession[k]; ok {
 
 				hostname := strings.TrimRight(val.Hostname, domain)
 				hostname = strings.TrimRight(hostname, fmt.Sprint(".", domain))
 
 				if host, ok := actorsList[hostname]; ok {
-					conSsh.TerminateSession(val.SessionPid, host, "x2goterminate-session", conSsh)
+					conSsh.TerminateSession(val.SessionPid, host, "sudo x2goterminate-session")
+					log.Printf("session %s terminated, user %s logged in incorrectly.", val.SessionPid, val.UserSession)
 				}
-
 			}
 		}
-
 	}
-
 	return err
 }
 
@@ -91,36 +82,39 @@ func convertTime(t string) time.Time {
 	return timeSession
 }
 
-func checkExpiration(t string) bool {
+func checkExpirationSession(t, state, user string,
+	durationSession time.Duration) (bool, time.Duration) {
+
+	var msk, _ = time.ParseDuration("3h")
 
 	stopTimeSession := convertTime(t)
 	delta := time.Since(stopTimeSession)
 	delta = delta.Truncate(time.Second)
 
-	if delta >= dur {
-		if delta <= 0 {
-			log.Fatal("session sub zero =)")
-		}
-		isExpired = true
-		return isExpired
+	delta += msk
+
+	if delta >= durationSession && state != "R" {
+
+		return true, delta
 	}
-	return false
+
+	return false, delta
 }
 
-func checkHostMatches(hostname, depSvcName, domain string) bool {
+func checkHostMatches(hostname, depSvcName, domain string) (bool, string) {
 
 	hostname = strings.TrimRight(hostname, fmt.Sprint(".", domain))
 	depSvcName = strings.TrimLeft(depSvcName, "s-")
 
 	if strings.EqualFold(depSvcName, hostname) {
-		return true
+		return true, hostname
 	} else {
-		fmt.Println("not found:", depSvcName, hostname, "не равны")
+		fmt.Println("not found:", depSvcName, hostname, "are not equal")
 	}
-	return false
+	return false, hostname
 }
 
-func contains(array map[string]*connectors.User, value string) bool {
+func containsIpaUser(array map[string]*connectors.User, value string) bool {
 	for k := range array {
 		if k == value {
 			return true
@@ -128,7 +122,7 @@ func contains(array map[string]*connectors.User, value string) bool {
 	}
 	return false
 }
-func contains2(array map[string]db.UserService, value string) bool {
+func containsDbUser(array map[string]db.UserService, value string) bool {
 	for k := range array {
 		if k == value {
 			return true
@@ -142,15 +136,16 @@ func difference(x2gosession map[string]*connectors.User, udssession map[string]d
 	diffArray := []string{}
 
 	for k := range x2gosession {
-		if !contains2(udssession, k) {
+		if !containsDbUser(udssession, k) {
 			diffArray = append(diffArray, k)
 		}
 	}
 
 	for k := range udssession {
-		if !contains(x2gosession, k) {
+		if !containsIpaUser(x2gosession, k) {
 			diffArray = append(diffArray, k)
 		}
 	}
+
 	return diffArray
 }

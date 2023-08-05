@@ -3,6 +3,7 @@ package connectors
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -54,17 +55,30 @@ func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
 
 func executeCmd(cmd, hostname string, config *ssh.ClientConfig) string {
 
-	conn, _ := ssh.Dial("tcp", hostname+":22", config)
-	session, _ := conn.NewSession()
+	var res string
+	var stdoutBuf bytes.Buffer
+
+	conn, err := ssh.Dial("tcp", hostname+":22", config)
+	if err != nil {
+		log.Printf("host is not available:%s\n", err.Error())
+		return res
+	}
+
+	session, err := conn.NewSession()
+	if err != nil {
+		log.Println("can`t create session:", err.Error())
+	}
+
 	defer session.Close()
 
-	var stdoutBuf bytes.Buffer
 	session.Stdout = &stdoutBuf
-	session.Run(cmd)
+	err = session.Run(cmd)
+	if err != nil {
+		log.Printf("can`t run cmd: %s", err.Error())
+	}
 
-	res := stdoutBuf.String()
+	res = stdoutBuf.String()
 
-	// return hostname + ": " + stdoutBuf.String()
 	return res
 }
 

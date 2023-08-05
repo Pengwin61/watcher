@@ -56,24 +56,3 @@ func ConnectDB(host, port, user, password, dbname string) (*sql.DB, error) {
 	log.Println("Successfully connected to", host)
 	return db, nil
 }
-
-// func (c *ClientPg) GetDeployService() (map[int]string, error) {
-
-// 	deployServiceList := make(map[int]string)
-
-// 	var id int
-// 	var name string
-
-// 	result, err := c.condb.Query("SELECT id, name FROM public.uds__deployed_service order by id ")
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	for result.Next() {
-// 		if err := result.Scan(&id, &name); err != nil {
-// 			return nil, err
-// 		}
-// 		deployServiceList[id] = name
-// 	}
-// 	return deployServiceList, err
-// }
