@@ -1,7 +1,6 @@
 package watch
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -110,8 +109,6 @@ func RunWatcher(params configs.Params) {
 			}
 
 			pers := core.MergeSession(x2gosession, udssession)
-
-			fmt.Println("TMP:", pers)
 
 			core.NewDiffer(pers, params.ExpirationSession)
 
