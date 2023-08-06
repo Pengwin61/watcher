@@ -3,6 +3,7 @@ module watcher
 go 1.20
 
 require (
+	github.com/Masterminds/squirrel v1.5.4
 	github.com/ccin2p3/go-freeipa v1.1.1
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
@@ -11,8 +12,6 @@ require (
 )
 
 require (
-	github.com/Masterminds/squirrel v1.5.4 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
