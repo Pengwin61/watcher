@@ -84,3 +84,22 @@ func difference(x2gosession map[string]*connectors.User, udssession map[string]d
 
 	return diffArray
 }
+
+var isView = true
+
+func PrintSesession() {
+
+	if isView {
+
+		log.Printf("X2GO RUN SESSION: | %20s | %5s | %23s | %20s | %20s | %10s | \n",
+			"--------------------", "-----", "-----------------------", "--------------------", "--------------------", "----------")
+
+		log.Printf("X2GO RUN SESSION: | %20s | %5s | %23s | %20s | %20s | %10s | \n",
+			"Name", "State", "Hostname", "Start Time", "Stop Time", "Overtime")
+
+		log.Printf("X2GO RUN SESSION: | %20s | %5s | %23s | %20s | %20s | %10s | \n",
+			"--------------------", "-----", "-----------------------", "--------------------", "--------------------", "----------")
+
+	}
+	isView = false
+}
