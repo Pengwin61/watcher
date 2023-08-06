@@ -20,12 +20,12 @@ type PersonSession struct {
 	DbUsername       string
 }
 
-func CleanupSession(x2gosession map[string]*connectors.User,
+func ManageSession(x2gosession map[string]*connectors.User,
 	udssession map[string]db.UserService,
 	conPg *db.ClientPg, conSsh *connectors.Client,
 	expirationSession time.Duration) {
 
-	sessionCollector(x2gosession, udssession, conPg, conSsh)
+	cleanupSession(x2gosession, udssession, conPg, conSsh)
 	personsSession := mergeSession(x2gosession, udssession)
 	expirationOvertime(&personsSession, expirationSession, conPg, conSsh)
 
@@ -33,7 +33,7 @@ func CleanupSession(x2gosession map[string]*connectors.User,
 
 }
 
-func sessionCollector(x2gosession map[string]*connectors.User, udssession map[string]db.UserService,
+func cleanupSession(x2gosession map[string]*connectors.User, udssession map[string]db.UserService,
 	conPg *db.ClientPg, conSsh *connectors.Client) error {
 
 	if len(x2gosession) != len(udssession) {

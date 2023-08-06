@@ -43,27 +43,33 @@ var Tmp = make([]ViewSession, 0)
 func ShowSession(personsSession *[]PersonSession) {
 	Tmp = nil
 
-	for _, v := range *personsSession {
+	if personsSession != nil {
 
-		v.StartDateSession = viewTimeFormat(v.StartDateSession)
-		v.StopDateSession = viewTimeFormat(v.StopDateSession)
+		for _, v := range *personsSession {
 
-		switch v.SessionState {
-		case "S":
-			v.SessionState += "toped"
+			v.StartDateSession = viewTimeFormat(v.StartDateSession)
+			v.StopDateSession = viewTimeFormat(v.StopDateSession)
 
-		case "R":
-			v.SessionState += "unning"
+			switch v.SessionState {
+			case "S":
+				v.SessionState += "toped"
+
+			case "R":
+				v.SessionState += "unning"
+			}
+
+			vTmp := ViewSession{
+				Username:     v.UserSession,
+				Status:       v.SessionState,
+				Hostname:     v.Hostname,
+				StartSession: v.StartDateSession,
+				StopSession:  v.StopDateSession}
+			Tmp = append(Tmp, vTmp)
 		}
-
-		vTmp := ViewSession{
-			Username:     v.UserSession,
-			Status:       v.SessionState,
-			Hostname:     v.Hostname,
-			StartSession: v.StartDateSession,
-			StopSession:  v.StopDateSession}
-		Tmp = append(Tmp, vTmp)
+	} else {
+		Tmp = nil
 	}
+
 }
 
 func viewTimeFormat(t string) string {
