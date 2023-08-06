@@ -9,7 +9,7 @@ import (
 	"watcher/db"
 )
 
-func DiffSession(x2gosession map[string]*connectors.User,
+func OldDiffSession(x2gosession map[string]*connectors.User,
 	udssession map[string]db.UserService,
 	conPg *db.ClientPg, conSsh *connectors.Client,
 	actorsList map[string]string, domain string, expirationSession time.Duration) error {

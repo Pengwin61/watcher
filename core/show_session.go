@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"watcher/connectors"
 )
 
 type ViewSession struct {
@@ -15,10 +14,36 @@ type ViewSession struct {
 
 var Tmp = make([]ViewSession, 0)
 
-func ShowSession(x2gosession map[string]*connectors.User) {
+// func ShowSession(x2gosession map[string]*connectors.User) {
+// 	Tmp = nil
+
+// 	for k, v := range x2gosession {
+
+// 		v.StartDateSession = viewTimeFormat(v.StartDateSession)
+// 		v.StopDateSession = viewTimeFormat(v.StopDateSession)
+
+// 		switch v.SessionState {
+// 		case "S":
+// 			v.SessionState += "toped"
+
+// 		case "R":
+// 			v.SessionState += "unning"
+// 		}
+
+// 		vTmp := ViewSession{
+// 			Username:     k,
+// 			Status:       v.SessionState,
+// 			Hostname:     v.Hostname,
+// 			StartSession: v.StartDateSession,
+// 			StopSession:  v.StopDateSession}
+// 		Tmp = append(Tmp, vTmp)
+// 	}
+// }
+
+func ShowSession(personsSession *[]PersonSession) {
 	Tmp = nil
 
-	for k, v := range x2gosession {
+	for _, v := range *personsSession {
 
 		v.StartDateSession = viewTimeFormat(v.StartDateSession)
 		v.StopDateSession = viewTimeFormat(v.StopDateSession)
@@ -32,7 +57,7 @@ func ShowSession(x2gosession map[string]*connectors.User) {
 		}
 
 		vTmp := ViewSession{
-			Username:     k,
+			Username:     v.UserSession,
 			Status:       v.SessionState,
 			Hostname:     v.Hostname,
 			StartSession: v.StartDateSession,

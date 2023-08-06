@@ -90,6 +90,7 @@ func RunWatcher(params configs.Params) {
 					log.Printf("can not delete directory; err: %s", err.Error())
 				}
 			}
+
 			sshstdout := conSSH.ConnectHost("sudo x2golistsessions_root", actorsList)
 			if sshstdout == "" {
 				time.Sleep(params.Schedule)
@@ -108,17 +109,20 @@ func RunWatcher(params configs.Params) {
 				log.Fatalf("can not; err: %s", err.Error())
 			}
 
-			pers := core.MergeSession(x2gosession, udssession)
+			core.CleanupSession(x2gosession, udssession,
+				conPg, conSSH, params.ExpirationSession)
 
-			core.NewDiffer(pers, params.ExpirationSession)
+			//
+			//
+			//
+			//
+			// err = core.OldDiffSession(x2gosession, udssession, conPg, conSSH, actorsList,
+			// 	params.Domain, params.ExpirationSession)
+			// if err != nil {
+			// 	log.Fatal("can not:", err.Error())
+			// }
 
-			err = core.DiffSession(x2gosession, udssession, conPg, conSSH, actorsList,
-				params.Domain, params.ExpirationSession)
-			if err != nil {
-				log.Fatal("can not:", err.Error())
-			}
-
-			core.ShowSession(x2gosession)
+			// core.ShowSession(x2gosession)
 
 			// err = core.SetQuota(params.SoftQuota, params.HardQuota, usersList)
 			// if err != nil {
