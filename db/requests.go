@@ -25,7 +25,7 @@ func (c *ClientPg) GetNewRequest() (map[string]UserService, error) {
 
 	// формируем sql string
 	sql, args, err := squirrel.
-		Select("public.uds__user_service.id, src_ip, public.uds__user_service.state, in_use , in_use_date, deployed_service_id, user_id, public.uds__deployed_service.name, public.uds_user.name").
+		Select("public.uds__user_service.id, public.uds__user_service.state, in_use , in_use_date, deployed_service_id, user_id, public.uds__deployed_service.name, public.uds_user.name").
 		From("public.uds__user_service").
 		Join("uds__deployed_service on deployed_service_id = public.uds__deployed_service.id").
 		Join("uds_user on user_id = uds_user.id").
