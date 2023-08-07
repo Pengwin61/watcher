@@ -87,19 +87,33 @@ func difference(x2gosession map[string]*connectors.User, udssession map[string]d
 
 var isView = true
 
-func PrintSesession() {
+func printSesessionHeader() {
 
 	if isView {
 
-		log.Printf("X2GO RUN SESSION: | %20s | %5s | %23s | %20s | %20s | %10s | \n",
-			"--------------------", "-----", "-----------------------", "--------------------", "--------------------", "----------")
+		fmt.Printf(" \t\t | %20s | %5s | %23s | %20s | %20s | %10s | %5s |\n",
+			"--------------------", "-----", "-----------------------", "--------------------", "--------------------", "----------", "-----")
 
-		log.Printf("X2GO RUN SESSION: | %20s | %5s | %23s | %20s | %20s | %10s | \n",
-			"Name", "State", "Hostname", "Start Time", "Stop Time", "Overtime")
+		fmt.Printf("X2GO RUN SESSION | %20s | %5s | %23s | %20s | %20s | %10s | %5s |\n",
+			"Name", "State", "Hostname", "Start Time", "Stop Time", "Overtime", "DB ID")
 
-		log.Printf("X2GO RUN SESSION: | %20s | %5s | %23s | %20s | %20s | %10s | \n",
-			"--------------------", "-----", "-----------------------", "--------------------", "--------------------", "----------")
+		fmt.Printf(" \t\t | %20s | %5s | %23s | %20s | %20s | %10s | %5s |\n",
+			"--------------------", "-----", "-----------------------", "--------------------", "--------------------", "----------", "-----")
 
 	}
 	isView = false
+}
+
+func printSessionHeaderEnd() {
+
+	fmt.Printf(" \t\t | %20s | %5s | %23s | %20s | %20s | %10s | %5s |\n",
+		"--------------------", "-----", "-----------------------", "--------------------", "--------------------", "----------", "-----")
+
+}
+
+func printSession(userSession, sessionState, hostname,
+	startDateSession, stopDateSession string, overtime time.Duration, dbId int) {
+
+	fmt.Printf(" \t\t | %20s | %5s | %23s | %20s | %20s | %10s | %5d |\n",
+		userSession, sessionState, hostname, startDateSession, stopDateSession, overtime, dbId)
 }

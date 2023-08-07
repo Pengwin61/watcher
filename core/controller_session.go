@@ -91,8 +91,6 @@ func mergeSession(x2gosession map[string]*connectors.User,
 func expirationOvertime(personsSession *[]PersonSession, expSesson time.Duration,
 	conPg *db.ClientPg, conSsh *connectors.Client) error {
 
-	PrintSesession()
-
 	for _, session := range *personsSession {
 		expired, delta := checkExpirationSession(session.StopDateSession, session.SessionState, expSesson)
 
@@ -107,11 +105,15 @@ func expirationOvertime(personsSession *[]PersonSession, expSesson time.Duration
 			log.Printf("session %s expired, overtime:%s update database ID:%d", session.UserSession, delta-expSesson, session.DbID)
 		}
 		if !expired && session.SessionState != "S" {
-			log.Printf("X2GO RUN SESSION: | %20s | %5s | %23s | %20s | %20s | %10s | \n",
-				session.UserSession, session.SessionState, session.Hostname,
-				session.StartDateSession, session.StopDateSession, expSesson-delta)
-		}
+			untilEnd := expSesson - delta
 
+			printSesessionHeader()
+
+			printSession(session.UserSession, session.SessionState, session.Hostname,
+				session.StartDateSession, session.StopDateSession, untilEnd.Truncate(time.Minute), session.DbID)
+
+		}
+		printSessionHeaderEnd()
 	}
 	return nil
 }
