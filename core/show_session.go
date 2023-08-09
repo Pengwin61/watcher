@@ -17,9 +17,6 @@ func ShowSession(personsSession *[]PersonSession) {
 
 		for _, v := range *personsSession {
 
-			v.StartDateSession = viewTimeFormat(v.StartDateSession)
-			v.StopDateSession = viewTimeFormat(v.StopDateSession)
-
 			switch v.SessionState {
 			case "S":
 				v.SessionState += "toped"
@@ -32,8 +29,8 @@ func ShowSession(personsSession *[]PersonSession) {
 				Username:     v.UserSession,
 				Status:       v.SessionState,
 				Hostname:     v.Hostname,
-				StartSession: v.StartDateSession,
-				StopSession:  v.StopDateSession}
+				StartSession: viewTimeFormat(v.StartDateSession),
+				StopSession:  viewTimeFormat(v.StopDateSession)}
 			Tmp = append(Tmp, vTmp)
 		}
 	} else {
