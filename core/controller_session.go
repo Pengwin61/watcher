@@ -23,11 +23,11 @@ type PersonSession struct {
 func ManageSession(x2gosession map[string]*connectors.User,
 	udssession map[string]db.UserService,
 	conPg *db.ClientPg, conSsh *connectors.Client,
-	expirationSession time.Duration) {
+	timeExpiration time.Duration) {
 
 	cleanupSession(x2gosession, udssession, conPg, conSsh)
 	personsSession := mergeSession(x2gosession, udssession)
-	expirationOvertime(&personsSession, expirationSession, conPg, conSsh)
+	expirationOvertime(&personsSession, timeExpiration, conPg, conSsh)
 
 	ShowSession(&personsSession)
 
@@ -88,11 +88,11 @@ func mergeSession(x2gosession map[string]*connectors.User,
 	return PersonsSession
 }
 
-func expirationOvertime(personsSession *[]PersonSession, expSesson time.Duration,
+func expirationOvertime(personsSession *[]PersonSession, timeExpiration time.Duration,
 	conPg *db.ClientPg, conSsh *connectors.Client) error {
 
 	for _, session := range *personsSession {
-		expired, delta := checkExpirationSession(session.StopDateSession, session.SessionState, expSesson)
+		expired, delta := checkExpirationSession(session.StopDateSession, session.SessionState, timeExpiration)
 
 		if expired {
 
@@ -102,10 +102,10 @@ func expirationOvertime(personsSession *[]PersonSession, expSesson time.Duration
 				return err
 			}
 
-			log.Printf("session %s expired, overtime:%s update database ID:%d", session.UserSession, delta-expSesson, session.DbID)
+			log.Printf("session %s expired, overtime:%s update database ID:%d", session.UserSession, delta-timeExpiration, session.DbID)
 		}
 		if !expired && session.SessionState != "S" {
-			untilEnd := expSesson - delta
+			untilEnd := timeExpiration - delta
 
 			printSesessionHeader()
 

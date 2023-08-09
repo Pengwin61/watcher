@@ -19,8 +19,8 @@ type Params struct {
 	UserIpa, UserPassIpa, GroupIpa, ActorsUser, ActorsPaswd,
 	SoftQuota, HardQuota, WebUser, WebPass,
 	SslPub, SslPriv string
-	WebPort                     int
-	Schedule, ExpirationSession time.Duration
+	WebPort                  int
+	Schedule, TimeExpiration time.Duration
 }
 
 func InitConfigs() Params {
@@ -53,7 +53,7 @@ func InitConfigs() Params {
 	pathLogs := cfg.Section("paths").Key("logs").String()
 
 	daysRotation := cfg.Section("maintenance").Key("home_dir_days_rotation").String()
-	expirationSession, err := cfg.Section("maintenance").Key("time_expiration_session").Duration()
+	timeExpiration, err := cfg.Section("maintenance").Key("time_expiration_session").Duration()
 	if err != nil {
 		fmt.Println("can parse time_expiration_session to ini file")
 	}
@@ -93,7 +93,7 @@ func InitConfigs() Params {
 		ActorsUser: actorsUser, ActorsPaswd: actorsPaswd, SoftQuota: softQuota,
 		HardQuota: hardQuota, WebPort: webPort, WebUser: webUser, WebPass: webPass,
 		SslPub: sslPub, SslPriv: sslPriv, Schedule: schedule,
-		ExpirationSession: expirationSession}
+		TimeExpiration: timeExpiration}
 
 	return params
 }

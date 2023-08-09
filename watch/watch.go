@@ -111,7 +111,7 @@ func RunWatcher(params configs.Params) {
 			}
 
 			core.ManageSession(x2gosession, udssession,
-				conPg, conSSH, params.ExpirationSession)
+				conPg, conSSH, params.TimeExpiration)
 
 		} else {
 
