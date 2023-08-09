@@ -6,10 +6,10 @@ import (
 )
 
 type User struct {
-	AgentPid, SessionPid, Port, Hostname,
-	SessionState, StartDateSession, field7, UserIp,
-	field9, field10, StopDateSession, UserSession,
-	field13, field14, field15, field16 string
+	AgentPid, SessionID, Port, Hostname,
+	State, InitTime, sessionCookie, ClientIP,
+	grPort, sndPort, LastTime, Username,
+	ageInSec, sshfsPort, tekictrlPort, tekidataPort string
 }
 
 func chunk(input []string, chunkSize int) ([][]string, error) {
@@ -49,25 +49,25 @@ func GetSessionX2go(stdout string) (map[string]*User, error) {
 
 	for _, v := range chunks {
 		tmp := &User{
-			AgentPid:         v[0],
-			SessionPid:       v[1],
-			Port:             v[2],
-			Hostname:         v[3],
-			SessionState:     v[4],
-			StartDateSession: v[5],
-			field7:           v[6],
-			UserIp:           v[7],
-			field9:           v[8],
-			field10:          v[9],
-			StopDateSession:  v[10],
-			UserSession:      v[11],
-			field13:          v[12],
-			field14:          v[13],
-			field15:          v[14],
-			field16:          v[15],
+			AgentPid:      v[0],
+			SessionID:     v[1],
+			Port:          v[2],
+			Hostname:      v[3],
+			State:         v[4],
+			InitTime:      v[5],
+			sessionCookie: v[6],
+			ClientIP:      v[7],
+			grPort:        v[8],
+			sndPort:       v[9],
+			LastTime:      v[10],
+			Username:      v[11],
+			ageInSec:      v[12],
+			sshfsPort:     v[13],
+			tekictrlPort:  v[14],
+			tekidataPort:  v[15],
 		}
 
-		storage[tmp.UserSession] = tmp
+		storage[tmp.Username] = tmp
 	}
 
 	return storage, err

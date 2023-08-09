@@ -9,9 +9,9 @@ import (
 )
 
 type PersonSession struct {
-	UserSession      string
-	SessionPid       string
-	SessionState     string
+	Username         string
+	SessionID        string
+	State            string
 	StartDateSession string
 	StopDateSession  string
 	Hostname         string
@@ -50,8 +50,8 @@ func cleanupSession(x2gosession map[string]*connectors.User, udssession map[stri
 				}
 				log.Printf("session %s removed from database ID:%d, watcher didn't find session record in x2go", val.Username, val.DbID)
 			} else if val, ok := x2gosession[k]; ok {
-				conSsh.TerminateSession(val.SessionPid, val.Hostname, "sudo x2goterminate-session")
-				log.Printf("session %s terminated, user %s logged in incorrectly.", val.SessionPid, val.UserSession)
+				conSsh.TerminateSession(val.SessionID, val.Hostname, "sudo x2goterminate-session")
+				log.Printf("session %s terminated, user %s logged in incorrectly.", val.SessionID, val.Username)
 			}
 
 		}
@@ -71,11 +71,11 @@ func mergeSession(x2gosession map[string]*connectors.User,
 			if strings.ContainsAny(xValue.Hostname, val.DepSvcName) {
 
 				vTmp := &PersonSession{
-					UserSession:      xValue.UserSession,
-					SessionPid:       xValue.SessionPid,
-					SessionState:     xValue.SessionState,
-					StartDateSession: xValue.StartDateSession,
-					StopDateSession:  xValue.StopDateSession,
+					Username:         xValue.Username,
+					SessionID:        xValue.SessionID,
+					State:            xValue.State,
+					StartDateSession: xValue.InitTime,
+					StopDateSession:  xValue.LastTime,
 					Hostname:         xValue.Hostname,
 					DbID:             val.DbID,
 					DbState:          val.State,
@@ -92,24 +92,24 @@ func expirationOvertime(personsSession *[]PersonSession, timeExpiration time.Dur
 	conPg *db.ClientPg, conSsh *connectors.Client) error {
 
 	for _, session := range *personsSession {
-		expired, delta := checkExpirationSession(session.StopDateSession, session.SessionState, timeExpiration)
+		expired, delta := checkExpirationSession(session.StopDateSession, session.State, timeExpiration)
 
 		if expired {
 
-			conSsh.TerminateSession(session.SessionPid, session.Hostname, "sudo x2goterminate-session")
+			conSsh.TerminateSession(session.SessionID, session.Hostname, "sudo x2goterminate-session")
 			err := conPg.UpdateTab(session.DbID)
 			if err != nil {
 				return err
 			}
 
-			log.Printf("session %s expired, overtime:%s update database ID:%d", session.UserSession, delta-timeExpiration, session.DbID)
+			log.Printf("session %s expired, overtime:%s update database ID:%d", session.Username, delta-timeExpiration, session.DbID)
 		}
-		if !expired && session.SessionState != "S" {
+		if !expired && session.State != "S" {
 			untilEnd := timeExpiration - delta
 
 			printSesessionHeader()
 
-			printSession(session.UserSession, session.SessionState, session.Hostname,
+			printSession(session.Username, session.State, session.Hostname,
 				session.StartDateSession, session.StopDateSession, untilEnd.Truncate(time.Minute), session.DbID)
 
 		}
