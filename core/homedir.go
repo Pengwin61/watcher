@@ -10,6 +10,8 @@ import (
 	"watcher/authenticators"
 )
 
+const folderPerm = 0700
+
 func CreatePath(pathFlag string) string {
 	basePath := filepath.Join(pathFlag)
 	return basePath
@@ -24,7 +26,7 @@ func CreateRootDirectory(basePath string, listGroups []string) error {
 		fullPathGroup := filepath.Join(basePath, group)
 
 		if _, err := os.Stat(group); os.IsNotExist(err) {
-			err = os.Mkdir(fullPathGroup, 0700)
+			err = os.Mkdir(fullPathGroup, folderPerm)
 			if err != nil {
 				if strings.Contains(err.Error(), "file exists") {
 					continue

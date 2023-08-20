@@ -50,7 +50,7 @@ func cleanupSession(x2gosession map[string]*connectors.User, udssession map[stri
 				}
 				log.Printf("session %s removed from database ID:%d, watcher didn't find session record in x2go", val.Username, val.DbID)
 			} else if val, ok := x2gosession[k]; ok {
-				conSsh.TerminateSession(val.SessionID, val.Hostname, "sudo x2goterminate-session")
+				conSsh.TerminateSession(val.SessionID, val.Hostname)
 				log.Printf("session %s terminated, user %s logged in incorrectly.", val.SessionID, val.Username)
 			}
 
@@ -96,7 +96,7 @@ func expirationOvertime(personsSession *[]PersonSession, timeExpiration time.Dur
 
 		if expired {
 
-			conSsh.TerminateSession(session.SessionID, session.Hostname, "sudo x2goterminate-session")
+			conSsh.TerminateSession(session.SessionID, session.Hostname)
 			err := conPg.UpdateTab(session.DbID)
 			if err != nil {
 				return err

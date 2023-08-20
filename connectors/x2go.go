@@ -73,10 +73,11 @@ func GetSessionX2go(stdout string) (map[string]*User, error) {
 	return storage, err
 }
 
-func (c *Client) TerminateSession(sessionPid, host, cmd string) {
+func (c *Client) TerminateSession(sessionPid, host string) {
+	cmdTerminated := "sudo x2goterminate-session"
 
 	hostsList := make(map[string]string)
 	hostsList[host] = host
 
-	c.ConnectHost(fmt.Sprint(cmd+" "+sessionPid), hostsList)
+	c.ConnectHost(fmt.Sprint(cmdTerminated+" "+sessionPid), hostsList)
 }
