@@ -78,6 +78,14 @@ func InitConfigs() Params {
 	flag.Parse()
 	schedule, _ := time.ParseDuration(*scheduleFlag)
 
+	// var params = Params{Mode: mode, Domain: domain, PathHome: basePath,
+	// 	PathLogs: pathLogs, DaysRotation: daysRotation, HostIpa: hostIpa,
+	// 	UserIpa: userIpa, UserPassIpa: userPassIpa, GroupIpa: groupIpa,
+	// 	ActorsUser: actorsUser, ActorsPaswd: actorsPaswd, SoftQuota: softQuota,
+	// 	HardQuota: hardQuota, WebPort: webPort, WebUser: webUser, WebPass: webPass,
+	// 	SslPub: sslPub, SslPriv: sslPriv, Schedule: schedule,
+	// 	TimeExpiration: timeExpiration}
+
 	var params = Params{
 		Maintenance: Maintenance{DaysRotation: daysRotation, Mode: mode, Domain: domain,
 			Schedule: schedule, TimeExpiration: timeExpiration},
