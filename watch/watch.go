@@ -14,7 +14,8 @@ import (
 
 func RunWatcher(params configs.Params) {
 
-	c, err := authenticators.NewClient(params.HostIpa, params.UserIpa, params.UserPassIpa)
+	c, err := authenticators.NewClient(params.FreeIPA.Host, params.FreeIPA.User,
+		params.FreeIPA.Pass)
 	if err != nil {
 		log.Fatalf("can not create freeIpa client; err: %s", err.Error())
 	}
@@ -25,7 +26,7 @@ func RunWatcher(params configs.Params) {
 	}
 	defer conPg.CloseDB()
 
-	conSSH, err := connectors.NewClient(params.ActorsUser, params.ActorsPaswd)
+	conSSH, err := connectors.NewClient(params.Servers.User, params.Servers.Pass)
 	if err != nil {
 		log.Fatalf("can not create SSH connection to hosts: %s", err.Error())
 	}
@@ -40,12 +41,12 @@ func RunWatcher(params configs.Params) {
 				log.Fatalf("can not get list actors: %s", err.Error())
 			}
 
-			groupsList, err := c.GetGroups(params.GroupIpa)
+			groupsList, err := c.GetGroups(params.FreeIPA.Group)
 			if err != nil {
 				log.Printf("can not get groups list in FreeIPA; err: %s", err.Error())
 			}
 
-			err = core.CreateRootDirectory(params.PathHome, groupsList)
+			err = core.CreateRootDirectory(params.Paths.Home, groupsList)
 			if err != nil {
 				log.Printf("can not create root directory; err: %s", err.Error())
 			}
@@ -64,19 +65,19 @@ func RunWatcher(params configs.Params) {
 						log.Printf("can not get user list ID; err: %s", err.Error())
 					}
 
-					err = core.CreateUserDirectory(params.PathHome, group, usersList, userListID)
+					err = core.CreateUserDirectory(params.Paths.Home, group, usersList, userListID)
 					if err != nil {
 						log.Printf("can not create directory; err: %s", err.Error())
 					}
 
-					folderList, err := core.FindHomeFolder(params.PathHome, group)
+					folderList, err := core.FindHomeFolder(params.Paths.Home, group)
 					if err != nil {
 						log.Printf("can not get list folder; err:%s", err)
 					}
 
 					diffListFolder := core.DiffDirectory(folderList, usersList)
 					if diffListFolder != nil {
-						err := core.DeleteFolders(params.PathHome, group, diffListFolder)
+						err := core.DeleteFolders(params.Paths.Home, group, diffListFolder)
 						if err != nil {
 							log.Printf("can not delete folder; err:%s", err)
 						}
@@ -85,7 +86,7 @@ func RunWatcher(params configs.Params) {
 				}
 
 				/* Удаление папки */
-				err = core.DirExpired(params.PathHome, group, params.DaysRotation, usersList)
+				err = core.DirExpired(params.Paths.Home, group, params.DaysRotation, usersList)
 				if err != nil {
 					log.Printf("can not delete directory; err: %s", err.Error())
 				}
