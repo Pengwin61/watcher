@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
 	"watcher/configs"
+	"watcher/logs"
 	"watcher/watch"
 	"watcher/webapp"
 )
@@ -16,22 +15,10 @@ func main() {
 
 	params := configs.InitConfigs()
 
-	/*
-	   Logging
-	*/
-	f, err := os.OpenFile(params.Paths.Logs, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	defer f.Close()
-	wrt := io.MultiWriter(os.Stdout, f)
-	log.SetOutput(wrt)
+	logfile := logs.InitLogs(params.Paths.Logs)
+	defer logfile.CloseFile()
 
 	/*
-
-
-
-
 
 
 	 */
