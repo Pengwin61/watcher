@@ -19,7 +19,7 @@ func main() {
 	/*
 	   Logging
 	*/
-	f, err := os.OpenFile(params.Paths.Logs, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(params.PathLogs, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
@@ -39,8 +39,8 @@ func main() {
 	go watch.RunWatcher(params)
 
 	app := new(webapp.Application)
-	app.Auth.Username = params.Web.User
-	app.Auth.Password = params.Web.Pass
+	app.Auth.Username = params.WebUser
+	app.Auth.Password = params.WebPass
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status", app.BasicAuth(app.ProtectedHandler))
@@ -53,7 +53,7 @@ func main() {
 	//
 	//
 	srv := &http.Server{
-		Addr:         fmt.Sprint("0.0.0.0:", params.Web.Port),
+		Addr:         fmt.Sprint("0.0.0.0:", params.WebPort),
 		Handler:      mux,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
