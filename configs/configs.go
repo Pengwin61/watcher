@@ -14,15 +14,6 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-type Params struct {
-	Mode, Domain, PathHome, PathLogs, DaysRotation, HostIpa,
-	UserIpa, UserPassIpa, GroupIpa, ActorsUser, ActorsPaswd,
-	SoftQuota, HardQuota, WebUser, WebPass,
-	SslPub, SslPriv string
-	WebPort                  int
-	Schedule, TimeExpiration time.Duration
-}
-
 func InitConfigs() Params {
 	// loads values from .env into the system
 	if err := godotenv.Load(); err != nil {
@@ -87,13 +78,22 @@ func InitConfigs() Params {
 	flag.Parse()
 	schedule, _ := time.ParseDuration(*scheduleFlag)
 
-	var params = Params{Mode: mode, Domain: domain, PathHome: basePath,
-		PathLogs: pathLogs, DaysRotation: daysRotation, HostIpa: hostIpa,
-		UserIpa: userIpa, UserPassIpa: userPassIpa, GroupIpa: groupIpa,
-		ActorsUser: actorsUser, ActorsPaswd: actorsPaswd, SoftQuota: softQuota,
-		HardQuota: hardQuota, WebPort: webPort, WebUser: webUser, WebPass: webPass,
-		SslPub: sslPub, SslPriv: sslPriv, Schedule: schedule,
-		TimeExpiration: timeExpiration}
+	// var params = Params{Mode: mode, Domain: domain, PathHome: basePath,
+	// 	PathLogs: pathLogs, DaysRotation: daysRotation, HostIpa: hostIpa,
+	// 	UserIpa: userIpa, UserPassIpa: userPassIpa, GroupIpa: groupIpa,
+	// 	ActorsUser: actorsUser, ActorsPaswd: actorsPaswd, SoftQuota: softQuota,
+	// 	HardQuota: hardQuota, WebPort: webPort, WebUser: webUser, WebPass: webPass,
+	// 	SslPub: sslPub, SslPriv: sslPriv, Schedule: schedule,
+	// 	TimeExpiration: timeExpiration}
+
+	var params = Params{
+		Maintenance: Maintenance{DaysRotation: daysRotation, Mode: mode, Domain: domain,
+			Schedule: schedule, TimeExpiration: timeExpiration},
+		FreeIPA:   FreeIPA{Host: hostIpa, User: userIpa, Pass: userPassIpa, Group: groupIpa},
+		Paths:     Paths{Home: basePath, Logs: pathLogs},
+		Servers:   Servers{User: actorsUser, Pass: actorsPaswd},
+		UserQuota: UserQuota{Soft: softQuota, Hard: hardQuota},
+		Web:       Web{User: webUser, Pass: webPass, Port: webPort, SslPub: sslPub, SslPriv: sslPriv}}
 
 	return params
 }
