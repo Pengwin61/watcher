@@ -20,7 +20,6 @@ func InitLogs(path string) *LogFile {
 	wrt := io.MultiWriter(os.Stdout, f)
 	log.SetOutput(wrt)
 
-	// return &LogFile{file: f}
 	return &LogFile{file: f}
 }
 
