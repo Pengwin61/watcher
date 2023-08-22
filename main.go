@@ -1,9 +1,6 @@
 package main
 
 import (
-	"io"
-	"log"
-	"os"
 	"watcher/configs"
 	"watcher/logs"
 	"watcher/watch"
@@ -27,5 +24,5 @@ func main() {
 	webClient := webapp.NewClient(params.Web.Port)
 	webClient.RunWeb(params.Web.User, params.Web.Pass,
 		params.Web.SslPub, params.Web.SslPriv)
-  
+
 }
