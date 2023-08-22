@@ -48,7 +48,7 @@ func main() {
 	}
 	log.Printf("starting server on %s", srv.Addr)
 
-	err = srv.ListenAndServeTLS(params.SslPub, params.SslPriv)
+	err := srv.ListenAndServeTLS(params.SslPub, params.SslPriv)
 	if err != nil {
 		log.Printf("%s", err.Error())
 	}
