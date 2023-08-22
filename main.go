@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"io"
 	"log"
-	"net/http"
-	"time"
+	"os"
 	"watcher/configs"
 	"watcher/logs"
 	"watcher/watch"
@@ -25,31 +24,8 @@ func main() {
 
 	go watch.RunWatcher(params)
 
-	app := new(webapp.Application)
-	app.Auth.Username = params.Web.User
-	app.Auth.Password = params.Web.Pass
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/status", app.BasicAuth(app.ProtectedHandler))
-	// mux.HandleFunc("/", app.UnprotectedHandler)
-
-	fs := http.FileServer(http.Dir("templates"))
-	mux.Handle("/", fs)
-
-	//
-	//
-	//
-	srv := &http.Server{
-		Addr:         fmt.Sprint("0.0.0.0:", params.Web.Port),
-		Handler:      mux,
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
-	log.Printf("starting server on %s", srv.Addr)
-
-	err := srv.ListenAndServeTLS(params.SslPub, params.SslPriv)
-	if err != nil {
-		log.Printf("%s", err.Error())
-	}
+	webClient := webapp.NewClient(params.Web.Port)
+	webClient.RunWeb(params.Web.User, params.Web.Pass,
+		params.Web.SslPub, params.Web.SslPriv)
+  
 }

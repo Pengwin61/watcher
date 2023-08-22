@@ -31,10 +31,7 @@ func InitConfigs() Params {
 	mode := cfg.Section("").Key("app_mode").String()
 	domain := cfg.Section("").Key("domain").String()
 
-	webPort, err := cfg.Section("web").Key("port").Int()
-	if err != nil {
-		fmt.Println("can parse port to ini file")
-	}
+	webPort := cfg.Section("web").Key("port").String()
 	webUser := cfg.Section("web").Key("user").String()
 	webPass := cfg.Section("web").Key("password").String()
 	sslPub := cfg.Section("web").Key("ssl_public").String()

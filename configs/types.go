@@ -16,7 +16,7 @@ type Web struct {
 	Pass    string
 	SslPub  string
 	SslPriv string
-	Port    int
+	Port    string
 }
 
 type Maintenance struct {
