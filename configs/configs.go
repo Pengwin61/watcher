@@ -28,9 +28,6 @@ func InitConfigs() Params {
 		os.Exit(1)
 	}
 
-	mode := cfg.Section("").Key("app_mode").String()
-	domain := cfg.Section("").Key("domain").String()
-
 	webPort := cfg.Section("web").Key("port").String()
 	webUser := cfg.Section("web").Key("user").String()
 	webPass := cfg.Section("web").Key("password").String()
@@ -76,13 +73,12 @@ func InitConfigs() Params {
 	schedule, _ := time.ParseDuration(*scheduleFlag)
 
 	var params = Params{
-		Maintenance: Maintenance{DaysRotation: daysRotation, Mode: mode, Domain: domain,
-			Schedule: schedule, TimeExpiration: timeExpiration},
-		FreeIPA:   FreeIPA{Host: hostIpa, User: userIpa, Pass: userPassIpa, Group: groupIpa},
-		Paths:     Paths{Home: basePath, Logs: pathLogs},
-		Servers:   Servers{User: actorsUser, Pass: actorsPaswd},
-		UserQuota: UserQuota{Soft: softQuota, Hard: hardQuota},
-		Web:       Web{User: webUser, Pass: webPass, Port: webPort, SslPub: sslPub, SslPriv: sslPriv}}
+		Maintenance: Maintenance{DaysRotation: daysRotation, Schedule: schedule, TimeExpiration: timeExpiration},
+		FreeIPA:     FreeIPA{Host: hostIpa, User: userIpa, Pass: userPassIpa, Group: groupIpa},
+		Paths:       Paths{Home: basePath, Logs: pathLogs},
+		Servers:     Servers{User: actorsUser, Pass: actorsPaswd},
+		UserQuota:   UserQuota{Soft: softQuota, Hard: hardQuota},
+		Web:         Web{User: webUser, Pass: webPass, Port: webPort, SslPub: sslPub, SslPriv: sslPriv}}
 
 	return params
 }

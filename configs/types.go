@@ -21,8 +21,6 @@ type Web struct {
 
 type Maintenance struct {
 	DaysRotation   string
-	Mode           string
-	Domain         string
 	Schedule       time.Duration
 	TimeExpiration time.Duration
 }
