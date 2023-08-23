@@ -14,7 +14,7 @@ import (
 
 const (
 	cmdListSession = "sudo x2golistsessions_root"
-	getListActor   = "uds_actortoken"
+	cmdListActor   = "uds_actortoken"
 )
 
 func RunWatcher(params configs.Params) {
@@ -39,7 +39,7 @@ func RunWatcher(params configs.Params) {
 	for {
 
 		/*  Get list uds_actors */
-		actorsList, err := conPg.GetEntity(getListActor)
+		actorsList, err := conPg.GetEntity(cmdListActor)
 		if err != nil {
 			log.Fatalf("can not get list actors: %s", err.Error())
 		}
