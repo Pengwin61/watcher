@@ -53,7 +53,7 @@ func CreateUserDirectory(basePath, group string, users []string,
 
 		if _, err := os.Stat(fullPathUser); os.IsNotExist(err) {
 
-			err = os.Mkdir(fullPathUser, 0700)
+			err = os.Mkdir(fullPathUser, folderPerm)
 			if err != nil {
 				return err
 			}
@@ -152,9 +152,6 @@ func FindHomeFolder(basePath, group string) ([]string, error) {
 		if !user.IsDir() {
 			continue
 		}
-		// if !strings.Contains(user.Name(), ".") {
-		// 	continue
-		// }
 		userList = append(userList, user.Name())
 	}
 	return userList, err
