@@ -14,7 +14,6 @@
                 <th onclick="sortTable(2)">Hostname</th>
                 <th onclick="sortTable(3)">Start session</th>
                 <th onclick="sortTable(4)">Stop session</th>
-                <th onclick="sortTable(4)">Execute</th>
             </thead>
 
             {{range . }}
@@ -24,9 +23,14 @@
                 <td>{{.Hostname}}</td>
                 <td>{{.StartSession}}</td>
                 <td>{{.StopSession}}</td>
-                <td> <a href="/status/terminate/{{.SessionID}}" class="button terminate">Terminate</a> </td>
             </tr>
             {{ else }}
+
+            <!-- <td> kirill.rak </td>
+            <td> R </td>
+            <td> mk0vm1032.bosch-ru.ru </td>
+            <td> 2023-07-29T10:27:01 </td>
+            <td> 2023-07-29T10:27:02 </td> -->
 
             {{end}}
             
@@ -87,7 +91,6 @@
                 }
               }
             }
-        
-        </script>
+            </script>
     </body>
 </html>
