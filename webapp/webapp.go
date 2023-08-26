@@ -53,5 +53,8 @@ func (c *Client) runHandlers(webUser, webPass string) {
 
 	c.mux.Handle("/", fs)
 	c.mux.HandleFunc("/status", app.BasicAuth(app.ProtectedHandler))
+	c.mux.HandleFunc("/status/terminate/", app.TerminateSession)
+
+	c.mux.HandleFunc("/test", app.TestH)
 
 }

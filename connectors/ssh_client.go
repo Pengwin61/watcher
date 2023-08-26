@@ -82,67 +82,32 @@ func executeCmd(cmd, hostname string, config *ssh.ClientConfig) string {
 	return res
 }
 
-// func (c *Client) ConnectHost(cmd string, hosts []string) string {
-//
-//
-// 	var fullResult string
-// 	results := make(chan string, 10)
-// 	timeout := time.After(30 * time.Second)
+func (c *Client) ExecCmd(cmd, hostname string) string {
 
-// 	for _, hostname := range hosts {
-// 		go func(hostname string) {
-// 			results <- executeCmd(cmd, hostname, c.con)
-// 		}(hostname)
-// 	}
+	var res string
+	var stdoutBuf bytes.Buffer
 
-// 	for i := 0; i < len(hosts); i++ {
-// 		select {
-// 		case res := <-results:
-// 			fullResult += res
-// 		case <-timeout:
-// 			fmt.Println("Timed out:")
-// 			// return
-// 		}
-// 	}
-// 	fullResult = strings.ReplaceAll(fullResult, "\n", " ")
+	conn, err := ssh.Dial("tcp", hostname+":22", c.con)
+	if err != nil {
+		log.Printf("host is not available:%s\n", err.Error())
+		return res
+	}
 
-// 	return fullResult
-// }
+	session, err := conn.NewSession()
+	if err != nil {
+		log.Println("can`t create session:", err.Error())
+	}
 
-//
-//
-// func CreateSSH(username, password, cmd string, hosts []string) string {
-// 	var fullResult string
+	defer session.Close()
 
-// 	results := make(chan string, 10)
+	session.Stdout = &stdoutBuf
 
-// 	timeout := time.After(30 * time.Second)
-// 	// cmd := "x2golistsessions_root"
+	err = session.Run(cmd)
+	if err != nil {
+		log.Printf("can`t run cmd: %s", err.Error())
+	}
 
-// 	config := &ssh.ClientConfig{
-// 		User: username,
-// 		Auth: []ssh.AuthMethod{
-// 			ssh.Password(password),
-// 		},
-// 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-// 	}
+	res = stdoutBuf.String()
 
-// 	for _, hostname := range hosts {
-// 		go func(hostname string) {
-// 			results <- executeCmd(cmd, hostname, config)
-// 		}(hostname)
-// 	}
-
-// 	for i := 0; i < len(hosts); i++ {
-// 		select {
-// 		case res := <-results:
-// 			fullResult += res
-// 		case <-timeout:
-// 			fmt.Println("Timed out:")
-// 			// return
-// 		}
-// 	}
-// 	fullResult = strings.ReplaceAll(fullResult, "\n", " ")
-
-// 	return fullResult
-// }
+	return res
+}
