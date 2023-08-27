@@ -8,10 +8,10 @@ type ViewSession struct {
 	StopSession  string
 }
 
-var Tmp = make([]ViewSession, 0)
+var ViewData = make([]ViewSession, 0)
 
 func ShowSession(personsSession *[]PersonSession) {
-	Tmp = nil
+	ViewData = nil
 
 	if personsSession != nil {
 
@@ -31,10 +31,10 @@ func ShowSession(personsSession *[]PersonSession) {
 				Hostname:     v.Hostname,
 				StartSession: viewTimeFormat(v.StartDateSession),
 				StopSession:  viewTimeFormat(v.StopDateSession)}
-			Tmp = append(Tmp, vTmp)
+			ViewData = append(ViewData, vTmp)
 		}
 	} else {
-		Tmp = nil
+		ViewData = nil
 	}
 
 }

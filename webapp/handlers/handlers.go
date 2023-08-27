@@ -17,7 +17,7 @@ type Application struct {
 }
 
 func (app *Application) ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-	data := core.Tmp
+	data := core.ViewData
 	tmpl, err := template.ParseFiles("templates/status.html")
 	if err != nil {
 		log.Printf("%s", err.Error())
