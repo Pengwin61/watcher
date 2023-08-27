@@ -10,11 +10,11 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type Client struct {
-	con *ssh.ClientConfig
+type ClientSSH struct {
+	ConSSH *ssh.ClientConfig
 }
 
-func NewClient(username, password string) (*Client, error) {
+func NewClientSSH(username, password string) (*ClientSSH, error) {
 
 	config := &ssh.ClientConfig{
 		User: username,
@@ -23,10 +23,10 @@ func NewClient(username, password string) (*Client, error) {
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
-	return &Client{con: config}, nil
+	return &ClientSSH{ConSSH: config}, nil
 }
 
-func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
+func (c *ClientSSH) ConnectHost(cmd string, actorlist map[string]string) string {
 
 	var fullResult string
 	results := make(chan string, 10)
@@ -34,7 +34,7 @@ func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
 
 	for _, ip := range actorlist {
 		go func(ip string) {
-			results <- executeCmd(cmd, ip, c.con)
+			results <- c.ExecuteCmd(cmd, ip)
 		}(ip)
 
 	}
@@ -53,41 +53,12 @@ func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
 	return fullResult
 }
 
-func executeCmd(cmd, hostname string, config *ssh.ClientConfig) string {
+func (c *ClientSSH) ExecuteCmd(cmd, hostname string) string {
 
 	var res string
 	var stdoutBuf bytes.Buffer
 
-	conn, err := ssh.Dial("tcp", hostname+":22", config)
-	if err != nil {
-		log.Printf("host is not available:%s\n", err.Error())
-		return res
-	}
-
-	session, err := conn.NewSession()
-	if err != nil {
-		log.Println("can`t create session:", err.Error())
-	}
-
-	defer session.Close()
-
-	session.Stdout = &stdoutBuf
-	err = session.Run(cmd)
-	if err != nil {
-		log.Printf("can`t run cmd: %s", err.Error())
-	}
-
-	res = stdoutBuf.String()
-
-	return res
-}
-
-func (c *Client) ExecuteCmd(cmd, hostname string) string {
-
-	var res string
-	var stdoutBuf bytes.Buffer
-
-	conn, err := ssh.Dial("tcp", hostname+":22", c.con)
+	conn, err := ssh.Dial("tcp", hostname+":22", c.ConSSH)
 	if err != nil {
 		log.Printf("host is not available:%s\n", err.Error())
 		return res

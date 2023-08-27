@@ -6,6 +6,8 @@ type ViewSession struct {
 	Hostname     string
 	StartSession string
 	StopSession  string
+	SessionID    string
+	DbID         int
 }
 
 var Tmp = make([]ViewSession, 0)
@@ -30,7 +32,9 @@ func ShowSession(personsSession *[]PersonSession) {
 				Status:       v.State,
 				Hostname:     v.Hostname,
 				StartSession: viewTimeFormat(v.StartDateSession),
-				StopSession:  viewTimeFormat(v.StopDateSession)}
+				StopSession:  viewTimeFormat(v.StopDateSession),
+				SessionID:    v.SessionID,
+				DbID:         v.DbID}
 			Tmp = append(Tmp, vTmp)
 		}
 	} else {

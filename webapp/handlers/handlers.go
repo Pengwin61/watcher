@@ -3,10 +3,14 @@ package handlers
 import (
 	"crypto/sha256"
 	"crypto/subtle"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
+	"watcher/connectors"
 	"watcher/core"
+	"watcher/db"
 )
 
 type Application struct {
@@ -62,4 +66,64 @@ func (app *Application) BasicAuth(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	})
+}
+
+func (app *Application) TerminateSession(w http.ResponseWriter, r *http.Request) {
+
+	sessionId := strings.TrimPrefix(r.RequestURI, "/status/terminate/")
+
+	user := strings.SplitAfterN(sessionId, "-", 2)
+
+	if len(user) == 1 {
+		fmt.Println("string is nil")
+	}
+
+	u := strings.TrimRight(user[0], "-")
+
+	for k, v := range core.Tmp {
+		if u != v.Username {
+			continue
+		} else {
+
+			fmt.Println(k)
+			// termSession(v.SessionID, v.Hostname)
+			terminationSession(v.SessionID, v.Hostname, v.DbID)
+			core.Tmp = remove(core.Tmp, k)
+		}
+
+	}
+
+	http.Redirect(w, r, "/status", 301)
+
+}
+
+func remove(slice []core.ViewSession, i int) []core.ViewSession {
+
+	copy(slice[i:], slice[i+1:])
+	return slice[:len(slice)-1]
+}
+
+func terminationSession(sessionId, hostname string, dbId int) {
+
+	con, err := connectors.NewClientSSH("root", "fANu2d$E")
+	if err != nil {
+		fmt.Println("i can`t create connection to host", err)
+	}
+
+	conDb, err := db.NewClient()
+	if err != nil {
+		fmt.Println("i can`t create connection to database:", err)
+	}
+
+	cmdTerminated := "sudo x2goterminate-session " + sessionId
+
+	con.ExecuteCmd(cmdTerminated, hostname)
+
+	err = conDb.UpdateTab(dbId)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("session %s", sessionId)
+
 }
