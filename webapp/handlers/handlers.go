@@ -102,14 +102,14 @@ func remove(slice []core.ViewSession, i int) []core.ViewSession {
 
 func terminationSession(sessionId, hostname string, dbId int) {
 
-	con, err := connectors.NewClientSSH("root", "fANu2d$E")
+	con, err := connectors.NewClientSSH(core.STR.Username, core.STR.Password)
 	if err != nil {
-		fmt.Println("i can`t create connection to host", err)
+		log.Println("i can`t create connection to host", err)
 	}
 
 	conDb, err := db.NewClient()
 	if err != nil {
-		fmt.Println("i can`t create connection to database:", err)
+		log.Println("i can`t create connection to database:", err)
 	}
 
 	cmdTerminated := "sudo x2goterminate-session " + sessionId
@@ -118,9 +118,9 @@ func terminationSession(sessionId, hostname string, dbId int) {
 
 	err = conDb.UpdateTab(dbId)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
-	fmt.Printf("session %s", sessionId)
+	log.Printf("the session %s was terminated by the administrator", sessionId)
 
 }
