@@ -21,7 +21,7 @@ type Application struct {
 }
 
 func (app *Application) ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-	data := core.Tmp
+	data := core.ViewData
 	tmpl, err := template.ParseFiles("templates/status.html")
 	if err != nil {
 		log.Printf("%s", err.Error())
@@ -80,15 +80,12 @@ func (app *Application) TerminateSession(w http.ResponseWriter, r *http.Request)
 
 	u := strings.TrimRight(user[0], "-")
 
-	for k, v := range core.Tmp {
+	for k, v := range core.ViewData {
 		if u != v.Username {
 			continue
 		} else {
-
-			fmt.Println(k)
-			// termSession(v.SessionID, v.Hostname)
 			terminationSession(v.SessionID, v.Hostname, v.DbID)
-			core.Tmp = remove(core.Tmp, k)
+			core.ViewData = remove(core.ViewData, k)
 		}
 
 	}

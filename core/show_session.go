@@ -10,10 +10,10 @@ type ViewSession struct {
 	DbID         int
 }
 
-var Tmp = make([]ViewSession, 0)
+var ViewData = make([]ViewSession, 0)
 
 func ShowSession(personsSession *[]PersonSession) {
-	Tmp = nil
+	ViewData = nil
 
 	if personsSession != nil {
 
@@ -35,10 +35,10 @@ func ShowSession(personsSession *[]PersonSession) {
 				StopSession:  viewTimeFormat(v.StopDateSession),
 				SessionID:    v.SessionID,
 				DbID:         v.DbID}
-			Tmp = append(Tmp, vTmp)
+			ViewData = append(ViewData, vTmp)
 		}
 	} else {
-		Tmp = nil
+		ViewData = nil
 	}
 
 }
