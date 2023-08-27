@@ -94,7 +94,7 @@ func (app *Application) TerminateSession(w http.ResponseWriter, r *http.Request)
 
 }
 
-func remove(slice []core.ViewSession, i int) []core.ViewSession {
+func remove[T comparable](slice []T, i int) []T {
 
 	copy(slice[i:], slice[i+1:])
 	return slice[:len(slice)-1]
