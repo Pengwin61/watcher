@@ -3,9 +3,12 @@ package handlers
 import (
 	"crypto/sha256"
 	"crypto/subtle"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
+	"watcher/connections"
 	"watcher/core"
 )
 
@@ -62,4 +65,42 @@ func (app *Application) BasicAuth(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	})
+}
+
+func (app *Application) TerminateSession(w http.ResponseWriter, r *http.Request) {
+
+	sessionId := strings.TrimPrefix(r.RequestURI, "/status/terminate/")
+
+	user := strings.SplitAfterN(sessionId, "-", 2)
+
+	if len(user) == 1 {
+		fmt.Println("string is nil")
+	}
+
+	u := strings.TrimRight(user[0], "-")
+
+	for k, v := range core.ViewData {
+		if u != v.Username {
+			continue
+		} else {
+			connections.Conn.SSH.TerminateSession(v.SessionID, v.Hostname)
+			log.Printf("the session %s was terminated by the administrator", sessionId)
+
+			err := connections.Conn.Database.UpdateTab(v.DbID)
+			if err != nil {
+				log.Println(err)
+			}
+			core.ViewData = remove(core.ViewData, k)
+		}
+
+	}
+
+	http.Redirect(w, r, "/status", 301)
+
+}
+
+func remove[T comparable](slice []T, i int) []T {
+
+	copy(slice[i:], slice[i+1:])
+	return slice[:len(slice)-1]
 }

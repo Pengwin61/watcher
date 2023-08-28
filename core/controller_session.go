@@ -4,6 +4,7 @@ import (
 	"log"
 	"strings"
 	"time"
+	"watcher/connections"
 	"watcher/connectors"
 	"watcher/db"
 )
@@ -21,20 +22,18 @@ type PersonSession struct {
 }
 
 func ManageSession(x2gosession map[string]*connectors.User,
-	udssession map[string]db.UserService,
-	conPg *db.ClientPg, conSsh *connectors.Client,
-	timeExpiration time.Duration) {
+	udssession map[string]db.UserService, timeExpiration time.Duration) {
 
-	cleanupSession(x2gosession, udssession, conPg, conSsh)
+	_ = cleanupSession(x2gosession, udssession)
 	personsSession := mergeSession(x2gosession, udssession)
-	expirationOvertime(&personsSession, timeExpiration, conPg, conSsh)
+	_ = expirationOvertime(&personsSession, timeExpiration)
 
 	ShowSession(&personsSession)
 
 }
 
-func cleanupSession(x2gosession map[string]*connectors.User, udssession map[string]db.UserService,
-	conPg *db.ClientPg, conSsh *connectors.Client) error {
+func cleanupSession(x2gosession map[string]*connectors.User,
+	udssession map[string]db.UserService) error {
 
 	if len(x2gosession) != len(udssession) {
 
@@ -44,13 +43,14 @@ func cleanupSession(x2gosession map[string]*connectors.User, udssession map[stri
 
 			if val, ok := udssession[k]; ok {
 
-				err := conPg.UpdateTab(val.DbID)
+				err := connections.Conn.Database.UpdateTab(val.DbID)
 				if err != nil {
 					return err
 				}
 				log.Printf("session %s removed from database ID:%d, watcher didn't find session record in x2go", val.Username, val.DbID)
 			} else if val, ok := x2gosession[k]; ok {
-				conSsh.TerminateSession(val.SessionID, val.Hostname)
+
+				connections.Conn.SSH.TerminateSession(val.SessionID, val.Hostname)
 				log.Printf("session %s terminated, user %s logged in incorrectly.", val.SessionID, val.Username)
 			}
 
@@ -88,16 +88,16 @@ func mergeSession(x2gosession map[string]*connectors.User,
 	return PersonsSession
 }
 
-func expirationOvertime(personsSession *[]PersonSession, timeExpiration time.Duration,
-	conPg *db.ClientPg, conSsh *connectors.Client) error {
+func expirationOvertime(personsSession *[]PersonSession,
+	timeExpiration time.Duration) error {
 
 	for _, session := range *personsSession {
 		expired, delta := checkExpirationSession(session.StopDateSession, session.State, timeExpiration)
 
 		if expired {
 
-			conSsh.TerminateSession(session.SessionID, session.Hostname)
-			err := conPg.UpdateTab(session.DbID)
+			connections.Conn.SSH.TerminateSession(session.SessionID, session.Hostname)
+			err := connections.Conn.Database.UpdateTab(session.DbID)
 			if err != nil {
 				return err
 			}

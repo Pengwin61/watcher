@@ -2,6 +2,8 @@ package main
 
 import (
 	"watcher/configs"
+	"watcher/connections"
+
 	"watcher/logs"
 	"watcher/watch"
 	"watcher/webapp"
@@ -13,6 +15,11 @@ func main() {
 
 	logfile := logs.InitLogs(params.Paths.Logs)
 	defer logfile.CloseFile()
+
+	connections.InitConnections(params.FreeIPA.Host, params.FreeIPA.User, params.FreeIPA.Pass,
+		params.Servers.User, params.Servers.Pass)
+
+	defer connections.Conn.Database.CloseDB()
 
 	/*
 
