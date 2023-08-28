@@ -35,6 +35,7 @@ func ShowSession(personsSession *[]PersonSession) {
 				StopSession:  viewTimeFormat(v.StopDateSession),
 				SessionID:    v.SessionID,
 				DbID:         v.DbID}
+
 			ViewData = append(ViewData, vTmp)
 		}
 	} else {
