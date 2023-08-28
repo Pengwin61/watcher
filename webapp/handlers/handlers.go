@@ -8,9 +8,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"watcher/connectors"
+	"watcher/connections"
 	"watcher/core"
-	"watcher/db"
 )
 
 type Application struct {
@@ -84,7 +83,13 @@ func (app *Application) TerminateSession(w http.ResponseWriter, r *http.Request)
 		if u != v.Username {
 			continue
 		} else {
-			terminationSession(v.SessionID, v.Hostname, v.DbID)
+			connections.Conn.SSH.TerminateSession(v.SessionID, v.Hostname)
+			log.Printf("the session %s was terminated by the administrator", sessionId)
+
+			err := connections.Conn.Database.UpdateTab(v.DbID)
+			if err != nil {
+				log.Println(err)
+			}
 			core.ViewData = remove(core.ViewData, k)
 		}
 
@@ -98,29 +103,4 @@ func remove[T comparable](slice []T, i int) []T {
 
 	copy(slice[i:], slice[i+1:])
 	return slice[:len(slice)-1]
-}
-
-func terminationSession(sessionId, hostname string, dbId int) {
-
-	con, err := connectors.NewClientSSH(core.STR.Username, core.STR.Password)
-	if err != nil {
-		log.Println("i can`t create connection to host", err)
-	}
-
-	conDb, err := db.NewClient()
-	if err != nil {
-		log.Println("i can`t create connection to database:", err)
-	}
-
-	cmdTerminated := "sudo x2goterminate-session " + sessionId
-
-	con.ExecuteCmd(cmdTerminated, hostname)
-
-	err = conDb.UpdateTab(dbId)
-	if err != nil {
-		log.Println(err)
-	}
-
-	log.Printf("the session %s was terminated by the administrator", sessionId)
-
 }

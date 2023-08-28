@@ -34,7 +34,7 @@ func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
 
 	for _, ip := range actorlist {
 		go func(ip string) {
-			results <- executeCmd(cmd, ip, c.con)
+			results <- c.executeCmd(cmd, ip)
 		}(ip)
 
 	}
@@ -53,12 +53,12 @@ func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
 	return fullResult
 }
 
-func executeCmd(cmd, hostname string, config *ssh.ClientConfig) string {
+func (c *Client) executeCmd(cmd, hostname string) string {
 
 	var res string
 	var stdoutBuf bytes.Buffer
 
-	conn, err := ssh.Dial("tcp", hostname+":22", config)
+	conn, err := ssh.Dial("tcp", hostname+":22", c.con)
 	if err != nil {
 		log.Printf("host is not available:%s\n", err.Error())
 		return res

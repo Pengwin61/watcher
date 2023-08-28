@@ -5,11 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"watcher/authenticators"
 	"watcher/configs"
+	"watcher/connections"
 	"watcher/connectors"
 	"watcher/core"
-	"watcher/db"
 )
 
 const (
@@ -19,32 +18,15 @@ const (
 
 func RunWatcher(params configs.Params) {
 
-	c, err := authenticators.NewClient(params.FreeIPA.Host, params.FreeIPA.User,
-		params.FreeIPA.Pass)
-	if err != nil {
-		log.Fatalf("can not create freeIpa client; err: %s", err.Error())
-	}
-
-	conPg, err := db.NewClient()
-	if err != nil {
-		log.Fatalf("can not create Postgres SQL client; err: %s", err.Error())
-	}
-	defer conPg.CloseDB()
-
-	conSSH, err := connectors.NewClient(params.Servers.User, params.Servers.Pass)
-	if err != nil {
-		log.Fatalf("can not create SSH connection to hosts: %s", err.Error())
-	}
-
 	for {
 
 		/*  Get list uds_actors */
-		actorsList, err := conPg.GetEntity(cmdListActor)
+		actorsList, err := connections.Conn.Database.GetEntity(cmdListActor)
 		if err != nil {
 			log.Fatalf("can not get list actors: %s", err.Error())
 		}
 
-		groupsList, err := c.GetGroups(params.FreeIPA.Group)
+		groupsList, err := connections.Conn.IPA.GetGroups(params.FreeIPA.Group)
 		if err != nil {
 			log.Printf("can not get groups list in FreeIPA; err: %s", err.Error())
 		}
@@ -56,14 +38,14 @@ func RunWatcher(params configs.Params) {
 
 		for _, group := range groupsList {
 
-			usersList, err := c.GetUser(group)
+			usersList, err := connections.Conn.IPA.GetUser(group)
 			if err != nil {
 				log.Printf("can not get user list in FreeIPA; err: %s", err.Error())
 			}
 
 			if usersList != nil {
 
-				userListID, err := c.GetUserID(usersList)
+				userListID, err := connections.Conn.IPA.GetUserID(usersList)
 				if err != nil {
 					log.Printf("can not get user list ID; err: %s", err.Error())
 				}
@@ -95,12 +77,13 @@ func RunWatcher(params configs.Params) {
 			}
 		}
 
-		sshstdout := conSSH.ConnectHost(cmdListSession, actorsList)
+		sshstdout := connections.Conn.SSH.ConnectHost(cmdListSession, actorsList)
 		if sshstdout == "" {
 			core.ShowSession(nil)
 			time.Sleep(params.Schedule)
 		}
 
+		// TO DO Переименовать на Parse session
 		x2gosession, err := connectors.GetSessionX2go(sshstdout)
 		if err != nil {
 			if strings.Contains(err.Error(), "wrong input") {
@@ -109,13 +92,12 @@ func RunWatcher(params configs.Params) {
 			log.Printf("list session x2go is empty: %s", err.Error())
 		}
 
-		udssession, err := conPg.GetNewRequest()
+		udssession, err := connections.Conn.Database.GetNewRequest()
 		if err != nil {
 			log.Fatalf("can not; err: %s", err.Error())
 		}
 
-		core.ManageSession(x2gosession, udssession,
-			conPg, conSSH, params.TimeExpiration)
+		core.ManageSession(x2gosession, udssession, params.TimeExpiration)
 
 		time.Sleep(params.Schedule)
 	}

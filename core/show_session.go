@@ -42,17 +42,3 @@ func ShowSession(personsSession *[]PersonSession) {
 	}
 
 }
-
-type S struct {
-	Username string
-	Password string
-}
-
-var STR S
-
-func InitCred(username, password string) {
-
-	str := S{Username: username, Password: password}
-
-	STR = str
-}
