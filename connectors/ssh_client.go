@@ -26,7 +26,7 @@ func NewClient(username, password string) (*Client, error) {
 	return &Client{con: config}, nil
 }
 
-func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
+func (c *Client) GetSessionX2go(cmd string, actorlist map[string]string) string {
 
 	var fullResult string
 	results := make(chan string, 10)
@@ -34,7 +34,7 @@ func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
 
 	for _, ip := range actorlist {
 		go func(ip string) {
-			results <- c.executeCmd(cmd, ip)
+			results <- c.ExecuteCmd(cmd, ip)
 		}(ip)
 
 	}
@@ -51,35 +51,6 @@ func (c *Client) ConnectHost(cmd string, actorlist map[string]string) string {
 	fullResult = strings.ReplaceAll(fullResult, "\n", " ")
 
 	return fullResult
-}
-
-func (c *Client) executeCmd(cmd, hostname string) string {
-
-	var res string
-	var stdoutBuf bytes.Buffer
-
-	conn, err := ssh.Dial("tcp", hostname+":22", c.con)
-	if err != nil {
-		log.Printf("host is not available:%s\n", err.Error())
-		return res
-	}
-
-	session, err := conn.NewSession()
-	if err != nil {
-		log.Println("can`t create session:", err.Error())
-	}
-
-	defer session.Close()
-
-	session.Stdout = &stdoutBuf
-	err = session.Run(cmd)
-	if err != nil {
-		log.Printf("can`t run cmd: %s", err.Error())
-	}
-
-	res = stdoutBuf.String()
-
-	return res
 }
 
 func (c *Client) ExecuteCmd(cmd, hostname string) string {

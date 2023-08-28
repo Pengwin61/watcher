@@ -77,14 +77,13 @@ func RunWatcher(params configs.Params) {
 			}
 		}
 
-		sshstdout := connections.Conn.SSH.ConnectHost(cmdListSession, actorsList)
+		sshstdout := connections.Conn.SSH.GetSessionX2go(cmdListSession, actorsList)
 		if sshstdout == "" {
 			core.ShowSession(nil)
 			time.Sleep(params.Schedule)
 		}
 
-		// TO DO Переименовать на Parse session
-		x2gosession, err := connectors.GetSessionX2go(sshstdout)
+		x2gosession, err := connectors.ParseSession(sshstdout)
 		if err != nil {
 			if strings.Contains(err.Error(), "wrong input") {
 				continue
@@ -97,7 +96,10 @@ func RunWatcher(params configs.Params) {
 			log.Fatalf("can not; err: %s", err.Error())
 		}
 
-		core.ManageSession(x2gosession, udssession, params.TimeExpiration)
+		err = core.ManageSession(x2gosession, udssession, params.TimeExpiration)
+		if err != nil {
+			log.Fatalf("can not; err: %s", err.Error())
+		}
 
 		time.Sleep(params.Schedule)
 	}

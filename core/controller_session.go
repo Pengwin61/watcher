@@ -22,14 +22,21 @@ type PersonSession struct {
 }
 
 func ManageSession(x2gosession map[string]*connectors.User,
-	udssession map[string]db.UserService, timeExpiration time.Duration) {
+	udssession map[string]db.UserService, timeExpiration time.Duration) error {
 
-	_ = cleanupSession(x2gosession, udssession)
+	err := cleanupSession(x2gosession, udssession)
+	if err != nil {
+		return err
+	}
 	personsSession := mergeSession(x2gosession, udssession)
-	_ = expirationOvertime(&personsSession, timeExpiration)
+	err = expirationOvertime(&personsSession, timeExpiration)
+	if err != nil {
+		return err
+	}
 
 	ShowSession(&personsSession)
 
+	return err
 }
 
 func cleanupSession(x2gosession map[string]*connectors.User,

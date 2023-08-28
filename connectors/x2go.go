@@ -6,10 +6,12 @@ import (
 )
 
 type User struct {
-	AgentPid, SessionID, Port, Hostname,
-	State, InitTime, sessionCookie, ClientIP,
-	grPort, sndPort, LastTime, Username,
-	ageInSec, sshfsPort, tekictrlPort, tekidataPort string
+	SessionID string
+	Hostname  string
+	State     string
+	InitTime  string
+	LastTime  string
+	Username  string
 }
 
 func chunk(input []string, chunkSize int) ([][]string, error) {
@@ -29,7 +31,7 @@ func chunk(input []string, chunkSize int) ([][]string, error) {
 
 }
 
-func GetSessionX2go(stdout string) (map[string]*User, error) {
+func ParseSession(stdout string) (map[string]*User, error) {
 
 	stdout = strings.TrimSpace(stdout)
 	stdout = strings.ReplaceAll(stdout, "\n", "|")
@@ -49,22 +51,12 @@ func GetSessionX2go(stdout string) (map[string]*User, error) {
 
 	for _, v := range chunks {
 		tmp := &User{
-			AgentPid:      v[0],
-			SessionID:     v[1],
-			Port:          v[2],
-			Hostname:      v[3],
-			State:         v[4],
-			InitTime:      v[5],
-			sessionCookie: v[6],
-			ClientIP:      v[7],
-			grPort:        v[8],
-			sndPort:       v[9],
-			LastTime:      v[10],
-			Username:      v[11],
-			ageInSec:      v[12],
-			sshfsPort:     v[13],
-			tekictrlPort:  v[14],
-			tekidataPort:  v[15],
+			SessionID: v[1],
+			Hostname:  v[3],
+			State:     v[4],
+			InitTime:  v[5],
+			LastTime:  v[10],
+			Username:  v[11],
 		}
 
 		storage[tmp.Username] = tmp
@@ -76,8 +68,5 @@ func GetSessionX2go(stdout string) (map[string]*User, error) {
 func (c *Client) TerminateSession(sessionPid, host string) {
 	cmdTerminated := "sudo x2goterminate-session"
 
-	hostsList := make(map[string]string)
-	hostsList[host] = host
-
-	c.ConnectHost(fmt.Sprint(cmdTerminated+" "+sessionPid), hostsList)
+	c.ExecuteCmd(cmdTerminated+""+sessionPid, host)
 }
