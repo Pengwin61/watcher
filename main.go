@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	errCh := make(chan error)
 
 	params := configs.InitConfigs()
 
@@ -19,12 +20,16 @@ func main() {
 
 	err := connections.InitConnections(params.FreeIPA.Host, params.FreeIPA.User, params.FreeIPA.Pass,
 		params.Servers.User, params.Servers.Pass)
-
-	log.Fatalf("%s", err)
+	if err != nil {
+		log.Fatalf("can`t create client: %s", err)
+	}
 
 	defer connections.Conn.Database.CloseDB()
 
-	go watch.RunWatcher(params)
+	go watch.RunWatcher(params, errCh)
+	if err != nil {
+		log.Println(<-errCh)
+	}
 
 	webClient := webapp.NewClient(params.Web.Port)
 	webClient.RunWeb(params.Web.User, params.Web.Pass,

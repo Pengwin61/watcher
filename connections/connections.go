@@ -28,19 +28,16 @@ func getConnections(ipaHost, ipaUser, ipaPass, srvUser, srvPass string) (*Connec
 
 	conIpa, err := authenticators.NewClient(ipaHost, ipaUser, ipaPass)
 	if err != nil {
-		// log.Fatalf("can not create freeIpa client; err: %s", err.Error())
 		return nil, err
 	}
 
 	conPg, err := db.NewClient()
 	if err != nil {
-		// log.Fatalf("can not create Postgres SQL client; err: %s", err.Error())
 		return nil, err
 	}
 
 	conSSH, err := connectors.NewClient(srvUser, srvPass)
 	if err != nil {
-		// log.Fatalf("can not create SSH connection to hosts: %s", err.Error())
 		return nil, err
 	}
 
