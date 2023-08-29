@@ -68,5 +68,5 @@ func ParseSession(stdout string) (map[string]*User, error) {
 func (c *Client) TerminateSession(sessionPid, host string) {
 	cmdTerminated := "sudo x2goterminate-session"
 
-	c.ExecuteCmd(cmdTerminated+""+sessionPid, host)
+	c.ExecuteCmd(cmdTerminated+" "+sessionPid, host)
 }

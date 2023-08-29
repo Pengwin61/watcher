@@ -19,18 +19,10 @@ func ShowSession(personsSession *[]PersonSession) {
 
 		for _, v := range *personsSession {
 
-			switch v.State {
-			case "S":
-				v.State += "toped"
-
-			case "R":
-				v.State += "unning"
-			}
-
 			vTmp := ViewSession{
 				Username:     v.Username,
-				Status:       v.State,
-				Hostname:     v.Hostname,
+				Status:       *viewStatusFormat(&v.State),
+				Hostname:     viewHostname(v.Hostname),
 				StartSession: viewTimeFormat(v.StartDateSession),
 				StopSession:  viewTimeFormat(v.StopDateSession),
 				SessionID:    v.SessionID,

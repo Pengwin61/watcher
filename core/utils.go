@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 	"watcher/connectors"
 	"watcher/db"
@@ -28,6 +29,24 @@ func viewTimeFormat(t string) string {
 	res := fmt.Sprintln(strDate, "\n", strTime)
 
 	return res
+}
+
+func viewStatusFormat(s *string) *string {
+
+	switch *s {
+	case "S":
+		*s += "toped"
+
+	case "R":
+		*s += "unning"
+	}
+	return s
+}
+
+func viewHostname(s string) string {
+	res := strings.Split(s, ".")
+
+	return res[0]
 }
 
 func checkExpirationSession(t, state string,
