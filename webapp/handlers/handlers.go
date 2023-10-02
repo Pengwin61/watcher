@@ -3,7 +3,6 @@ package handlers
 import (
 	"crypto/sha256"
 	"crypto/subtle"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -20,7 +19,7 @@ type Application struct {
 }
 
 func (app *Application) ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-	data := core.ViewData
+	data := core.GetUsersView()
 	tmpl, err := template.ParseFiles("templates/status.html")
 	if err != nil {
 		log.Printf("%s", err.Error())
@@ -74,12 +73,12 @@ func (app *Application) TerminateSession(w http.ResponseWriter, r *http.Request)
 	user := strings.SplitAfterN(sessionId, "-", 2)
 
 	if len(user) == 1 {
-		fmt.Println("string is nil")
+		log.Println("string is nil")
 	}
 
 	u := strings.TrimRight(user[0], "-")
 
-	for k, v := range core.ViewData {
+	for k, v := range core.GetUsersView() {
 		if u != v.Username {
 			continue
 		} else {
@@ -90,17 +89,11 @@ func (app *Application) TerminateSession(w http.ResponseWriter, r *http.Request)
 			if err != nil {
 				log.Println(err)
 			}
-			core.ViewData = remove(core.ViewData, k)
+			core.SetUserView(core.RemoveSlice(core.GetUsersView(), k))
 		}
 
 	}
 
 	http.Redirect(w, r, "/status", 301)
 
-}
-
-func remove[T comparable](slice []T, i int) []T {
-
-	copy(slice[i:], slice[i+1:])
-	return slice[:len(slice)-1]
 }

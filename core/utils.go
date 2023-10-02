@@ -9,6 +9,12 @@ import (
 	"watcher/db"
 )
 
+func RemoveSlice[T comparable](slice []T, i int) []T {
+
+	copy(slice[i:], slice[i+1:])
+	return slice[:len(slice)-1]
+}
+
 func convertTime(t string) time.Time {
 
 	layout := "2006-01-02T15:04:05"
