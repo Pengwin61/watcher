@@ -18,6 +18,8 @@ const (
 
 func RunWatcher(params configs.Params, errCh chan error) error {
 
+	defer close(errCh)
+
 	for {
 
 		/*  Get list uds_actors */

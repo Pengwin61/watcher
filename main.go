@@ -29,9 +29,12 @@ func main() {
 	defer connections.Conn.Database.CloseDB()
 
 	go watch.RunWatcher(params, errCh)
-	if err != nil {
-		log.Println(<-errCh)
-	}
+
+	go func() {
+		for err := range errCh {
+			log.Println(err)
+		}
+	}()
 
 	webClient := webapp.NewClient(params.Web.Port)
 	webClient.RunWeb(params.Web.User, params.Web.Pass,
