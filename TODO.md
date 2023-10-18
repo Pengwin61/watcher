@@ -9,5 +9,7 @@ https://github.com/Pengwin61/watcher/blob/dev/watch/watch.go
 ```
 4. Безконечный цикл, нужно подумать как плавно завершать процессы не kill -9, прочитать про graceful shutdown
 ```
+https://blog.ildarkarymov.ru/posts/graceful-shutdown/
+
 https://github.com/Pengwin61/watcher/blob/dev/watch/watch.go#L20
 ```
