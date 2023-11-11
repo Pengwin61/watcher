@@ -1,0 +1,30 @@
+
+[web]
+enable = true
+port = 8181
+user = admin
+password = admin
+ssl_public = "./localhost.pem"
+ssl_private = "./localhost-key.pem"
+
+[paths]
+home_dir = "/testenv/home_dir/"
+logs = "/testenv/logs/watcher.log"
+
+[maintenance]
+home_dir_days_rotation = 180
+time_expiration_session = "24h"
+
+[servers]
+username = root
+password = 
+
+[FreeIpa]
+host = 
+username = 
+password =
+master_group =
+
+[userQuota]
+soft_quota = "1G"
+hard_quota = "1G"
