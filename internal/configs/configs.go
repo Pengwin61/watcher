@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 	"time"
-	"watcher/core"
+	"watcher/internal/core"
 
 	"github.com/joho/godotenv"
 	"gopkg.in/ini.v1"
@@ -16,13 +16,13 @@ import (
 
 func InitConfigs() Params {
 	// loads values from .env into the system
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load("config/.env"); err != nil {
 		log.Print("No .env file found")
 		os.Exit(1)
 	}
 
 	// loads values from settings.cfg
-	cfg, err := ini.Load("settings.cfg")
+	cfg, err := ini.Load("config/settings.cfg")
 	if err != nil {
 		log.Printf("fail to read file: %v", err)
 		os.Exit(1)

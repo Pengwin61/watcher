@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"watcher/configs"
-	"watcher/connections"
-	"watcher/connectors"
-	"watcher/core"
+	"watcher/internal/configs"
+	"watcher/internal/connections"
+	"watcher/internal/connectors"
+	"watcher/internal/core"
 )
 
 const (

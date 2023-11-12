@@ -4,9 +4,9 @@ import (
 	"log"
 	"strings"
 	"time"
-	"watcher/connections"
-	"watcher/connectors"
-	"watcher/db"
+	"watcher/internal/connections"
+	"watcher/internal/connectors"
+	"watcher/internal/db"
 )
 
 type PersonSession struct {

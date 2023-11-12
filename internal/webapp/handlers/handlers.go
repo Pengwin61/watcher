@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"watcher/connections"
-	"watcher/core"
+	"watcher/internal/connections"
+	"watcher/internal/core"
 )
 
 type Application struct {

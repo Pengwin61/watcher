@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"watcher/authenticators"
+	"watcher/internal/authenticators"
 )
 
 const folderPerm = 0700
