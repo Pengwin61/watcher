@@ -2,12 +2,12 @@ package main
 
 import (
 	"log"
-	"watcher/configs"
-	"watcher/connections"
+	"watcher/internal/configs"
+	"watcher/internal/connections"
 
-	"watcher/logs"
-	"watcher/watch"
-	"watcher/webapp"
+	"watcher/internal/logs"
+	"watcher/internal/watch"
+	"watcher/internal/webapp"
 )
 
 //

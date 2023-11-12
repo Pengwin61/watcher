@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 	"time"
-	"watcher/core"
+	"watcher/internal/core"
 
 	"github.com/joho/godotenv"
 	"gopkg.in/ini.v1"

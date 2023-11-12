@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 	"time"
-	"watcher/connectors"
-	"watcher/db"
+	"watcher/internal/connectors"
+	"watcher/internal/db"
 )
 
 func RemoveSlice[T comparable](slice []T, i int) []T {

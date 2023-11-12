@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"watcher/webapp/handlers"
+	"watcher/internal/webapp/handlers"
 )
 
 type Client struct {

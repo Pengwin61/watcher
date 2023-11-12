@@ -1,9 +1,9 @@
 package connections
 
 import (
-	"watcher/authenticators"
-	"watcher/connectors"
-	"watcher/db"
+	"watcher/internal/authenticators"
+	"watcher/internal/connectors"
+	"watcher/internal/db"
 )
 
 type Connections struct {
