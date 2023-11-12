@@ -1,4 +1,5 @@
-1. Поменять структуру проекта убрать пакеты в папку **/internal**
+1. ~~Поменять структуру проекта убрать пакеты в папку **/internal**~~
+
 2. Вынести обработки для разных  OS  в отдельные методы
 ```
 https://github.com/Pengwin61/watcher/blob/dev/healthcheck/healthcheck.go
