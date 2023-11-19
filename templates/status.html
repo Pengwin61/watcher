@@ -2,91 +2,79 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>OpenUDS users session</title>
-        <link href="css/style_status.css" rel="stylesheet" type="text/css" />
-        <!-- <link rel="icon" type="image/x-icon" href="./images/favicon.ico"> -->
+        <title>OpenUDS Users Session</title>
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+        <link href="/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/css/style.css" rel="stylesheet" type="text/css" />
+        <script src="/js/bootstrap/bootstrap.bundle.min.js"></script>
+        <script src="/js/sort_table.js"></script>
     </head>
+
     <body>
-        <table id="myTable">
-            <thead>
-                <th onclick="sortTable(0)">Username</th>
-                <th onclick="sortTable(1)">Status</th>
-                <th onclick="sortTable(2)">Hostname</th>
-                <th onclick="sortTable(3)">Start session</th>
-                <th onclick="sortTable(4)">Stop session</th>
-                <th> Execute </th>
-            </thead>
+      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
 
-          {{range . }}
-            <tr>	
-                <td>{{.Username}}</td>
-                <td>{{.Status}} </td>
-                <td>{{.Hostname}}</td>
-                <td>{{.StartSession}}</td>
-                <td>{{.StopSession}}</td>
-                <td> <a href="/status/terminate/{{.SessionID}}" class="button terminate"> Terminate </a> </td>
-            </tr>
+          <img src="/images/uds_32.jpeg" alt="" width="32" height="32">
+          <a class="navbar-brand" href="/">OpenUDS </a>
+
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/home">Home 🏠</a>
+              </li>
+              <li class="nav-item">
+
+                <div class="visible"> 
+                  <a class="nav-link disabled" aria-disabled="true">Lock🔒</a>
+                </div>
+                
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Administration
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="/actors">Actors 🟢</a></li>
+                  <li><a class="dropdown-item" href="/status">Status 🟢</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container-sm">
+        <table id="myTable" class="table table-bordered border-dark table-hover">
+          {{ if . }}
+              <tbody>
+                <tr class="table-active table-dark ">
+                  <th onclick="sortTable(0)">Username</th>
+                  <th onclick="sortTable(1)">Status</th>
+                  <th onclick="sortTable(2)">Hostname</th>
+                  <th onclick="sortTable(3)">Start session</th>
+                  <th onclick="sortTable(4)">Stop session</th>
+                  <th scope="col">Execute</th>
+                </tr>
           {{ else }}
-        
-        {{end}}
-            
+                  <div> List users is empty </div>    
+          {{ end }}
+                <tr>
+          {{range . }}
+                  <td>{{.Username}}</td>
+                  <td>{{.State}} </td>
+                  <td>{{.Hostname}}</td>
+                  <td>{{.StartDate}}</td>
+                  <td>{{.StopDate}}</td>
+                  <td> 
+                    <a class="btn btn-danger" href="./status/terminate/{{.SessionID}}" role="button">Terminate</a>
+                  </td>
+                </tr>
+              </tbody>
+          {{end}}
         </table>
-
-        <script>
-            function sortTable(n) {
-              var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-              table = document.getElementById("myTable");
-              switching = true;
-              //Set the sorting direction to ascending:
-              dir = "asc"; 
-              /*Make a loop that will continue until
-              no switching has been done:*/
-              while (switching) {
-                //start by saying: no switching is done:
-                switching = false;
-                rows = table.getElementsByTagName("TR");
-                /*Loop through all table rows (except the
-                first, which contains table headers):*/
-                for (i = 1; i < (rows.length - 1); i++) {
-                  //start by saying there should be no switching:
-                  shouldSwitch = false;
-                  /*Get the two elements you want to compare,
-                  one from current row and one from the next:*/
-                  x = rows[i].getElementsByTagName("TD")[n];
-                  y = rows[i + 1].getElementsByTagName("TD")[n];
-                  /*check if the two rows should switch place,
-                  based on the direction, asc or desc:*/
-                  if (dir == "asc") {
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                      //if so, mark as a switch and break the loop:
-                      shouldSwitch= true;
-                      break;
-                    }
-                  } else if (dir == "desc") {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                      //if so, mark as a switch and break the loop:
-                      shouldSwitch = true;
-                      break;
-                    }
-                  }
-                }
-                if (shouldSwitch) {
-                  /*If a switch has been marked, make the switch
-                  and mark that a switch has been done:*/
-                  rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                  switching = true;
-                  //Each time a switch is done, increase this count by 1:
-                  switchcount ++;      
-                } else {
-                  /*If no switching has been done AND the direction is "asc",
-                  set the direction to "desc" and run the while loop again.*/
-                  if (switchcount == 0 && dir == "asc") {
-                    dir = "desc";
-                    switching = true;
-                  }
-                }
-              }
-            }
-            </script>
+      </div>
     </body>
 </html>
