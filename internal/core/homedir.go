@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"watcher/internal/authenticators"
+	"watcher/internal/auth"
 )
 
 const folderPerm = 0700
@@ -41,7 +41,7 @@ func CreateRootDirectory(basePath string, listGroups []string) error {
 }
 
 func CreateUserDirectory(basePath, group string, users []string,
-	employeeList map[string]authenticators.Employee) error {
+	employeeList map[string]auth.Employee) error {
 
 	dir, err := os.Open(basePath)
 	if err != nil {
@@ -67,7 +67,7 @@ func CreateUserDirectory(basePath, group string, users []string,
 	return err
 }
 
-func changeOwner(basePath, group string, employeeList map[string]authenticators.Employee) {
+func changeOwner(basePath, group string, employeeList map[string]auth.Employee) {
 
 	for username, value := range employeeList {
 		fullPath := filepath.Join(basePath, group, username)

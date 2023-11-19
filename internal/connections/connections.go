@@ -1,13 +1,13 @@
 package connections
 
 import (
-	"watcher/internal/authenticators"
+	"watcher/internal/auth"
 	"watcher/internal/connectors"
 	"watcher/internal/db"
 )
 
 type Connections struct {
-	IPA      *authenticators.Client
+	IPA      *auth.Client
 	Database *db.ClientPg
 	SSH      *connectors.Client
 }
@@ -26,7 +26,7 @@ func InitConnections(ipaHost, ipaUser, ipaPass, srvUser, srvPass string) error {
 
 func getConnections(ipaHost, ipaUser, ipaPass, srvUser, srvPass string) (*Connections, error) {
 
-	conIpa, err := authenticators.NewClient(ipaHost, ipaUser, ipaPass)
+	conIpa, err := auth.NewClient(ipaHost, ipaUser, ipaPass)
 	if err != nil {
 		return nil, err
 	}

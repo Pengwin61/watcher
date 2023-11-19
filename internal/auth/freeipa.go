@@ -1,4 +1,4 @@
-package authenticators
+package auth
 
 import (
 	"crypto/tls"
