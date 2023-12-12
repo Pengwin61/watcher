@@ -7,10 +7,18 @@ import (
 )
 
 type Connections struct {
-	IPA      *auth.Client
+	IPA      *auth.ClientFreeIpa
 	Database *db.ClientPg
 	SSH      *connectors.Client
+	LDAP     *auth.ClientLdap
 }
+
+const (
+	HOST   = "ipa.pengwin.local"
+	DOMAIN = "pengwin"
+	DC     = "local"
+	PORT   = "389"
+)
 
 var Conn *Connections
 
@@ -41,5 +49,10 @@ func getConnections(ipaHost, ipaUser, ipaPass, srvUser, srvPass string) (*Connec
 		return nil, err
 	}
 
-	return &Connections{IPA: conIpa, Database: conPg, SSH: conSSH}, err
+	conLdap, err := auth.NewLdapClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Connections{IPA: conIpa, Database: conPg, SSH: conSSH, LDAP: conLdap}, err
 }

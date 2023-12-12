@@ -19,6 +19,24 @@ func SetUserView(users []ViewSession) {
 	viewUsers = users
 }
 
+func GetPersonalView(user string) []ViewSession {
+	tempusers := make([]ViewSession, 0)
+	for _, v := range viewUsers {
+		if v.Username == user {
+			temp := &ViewSession{
+				Username:     v.Username,
+				Status:       v.Status,
+				Hostname:     v.Hostname,
+				StartSession: v.StartSession,
+				StopSession:  v.StopSession,
+				SessionID:    v.SessionID}
+
+			tempusers = append(tempusers, *temp)
+		}
+	}
+	return tempusers
+}
+
 func ShowSession(personsSession *[]PersonSession) {
 	viewUsers = nil
 

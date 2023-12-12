@@ -1,0 +1,59 @@
+{{ template "header.html" .}}
+
+      <div class="container-sm">
+        <table id="myTable" class="table table-bordered border-dark table-hover">
+          {{ if .users }}
+              <tbody>
+                <tr class="table-active table-dark ">
+                  <th onclick="sortTable(0)">Username</th>
+                  <th onclick="sortTable(1)">Status</th>
+                  <th onclick="sortTable(2)">Hostname</th>
+                  <th onclick="sortTable(3)">Start session</th>
+                  <th onclick="sortTable(4)">Stop session</th>
+                  <th scope="col">Execute</th>
+                </tr>
+          {{ else }}
+
+          <div class="container">
+            <div> List actors is empty </div>
+            <a href="/sessions" type="button" class="btn btn-info">Refresh</a>
+          </div>
+          
+          {{ end }}
+
+                <tr>
+          {{if .isAdmin}}
+          {{range .users }}
+                  <td>{{.Username}}</td>
+                  <td>{{.Status}} </td>
+                  <td>{{.Hostname}}</td>
+                  <td>{{.StartSession}}</td>
+                  <td>{{.StopSession}}</td>
+                  <td> 
+                    <a class="btn btn-danger" href="/sessions/terminate/{{.SessionID}}" role="button">Terminate</a>
+                  </td>
+                </tr>
+              </tbody>
+          {{end}}
+
+          {{else}}
+
+          <tr>
+            {{range .persons}}
+            <td>{{.Username}}</td>
+            <td>{{.Status}} </td>
+            <td>{{.Hostname}}</td>
+            <td>{{.StartSession}}</td>
+            <td>{{.StopSession}}</td>
+            <td>
+              <a class="btn btn-danger" href="/sessions/terminate/{{.SessionID}}" role="button">Terminate</a>
+            </td>
+          </tr>
+          {{end}}
+        </table>
+      </div>
+      {{end}}
+
+
+
+{{ template "footer.html" .}}

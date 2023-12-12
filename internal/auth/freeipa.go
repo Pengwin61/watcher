@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/ccin2p3/go-freeipa/freeipa"
 )
@@ -14,17 +15,17 @@ type Employee struct {
 	GuidNumber int
 }
 
-type Client struct {
+type ClientFreeIpa struct {
 	con *freeipa.Client
 }
 
-func NewClient(ipaHost, ipaUser, ipaPassword string) (*Client, error) {
+func NewClient(ipaHost, ipaUser, ipaPassword string) (*ClientFreeIpa, error) {
 	conn, err := ConIpa(ipaHost, ipaUser, ipaPassword)
 
 	if err != nil {
 		return nil, err
 	}
-	return &Client{con: conn}, nil
+	return &ClientFreeIpa{con: conn}, nil
 }
 
 func ConIpa(ipaHost, ipaUser, ipaPasswd string) (*freeipa.Client, error) {
@@ -39,7 +40,7 @@ func ConIpa(ipaHost, ipaUser, ipaPasswd string) (*freeipa.Client, error) {
 	return c, nil
 
 }
-func (c *Client) GetGroups(ipaGroup string) ([]string, error) {
+func (c *ClientFreeIpa) GetGroups(ipaGroup string) ([]string, error) {
 
 	r, err := c.con.GroupShow(&freeipa.GroupShowArgs{Cn: *freeipa.String(ipaGroup)}, &freeipa.GroupShowOptionalArgs{})
 
@@ -58,7 +59,7 @@ func (c *Client) GetGroups(ipaGroup string) ([]string, error) {
 	return *groupFreeIpaList, nil
 }
 
-func (c *Client) GetUser(ipaGroup string) ([]string, error) {
+func (c *ClientFreeIpa) GetUser(ipaGroup string) ([]string, error) {
 	res, err := c.con.GroupShow(&freeipa.GroupShowArgs{Cn: *freeipa.String(ipaGroup)}, &freeipa.GroupShowOptionalArgs{})
 	if err != nil {
 		if ipaE, ok := err.(*freeipa.Error); ok {
@@ -80,7 +81,7 @@ func (c *Client) GetUser(ipaGroup string) ([]string, error) {
 	return nil, nil
 }
 
-func (c *Client) GetUserID(userlist []string) (map[string]Employee, error) {
+func (c *ClientFreeIpa) GetUserID(userlist []string) (map[string]Employee, error) {
 
 	employeeList := map[string]Employee{}
 
@@ -99,4 +100,34 @@ func (c *Client) GetUserID(userlist []string) (map[string]Employee, error) {
 		employeeList[res2.Result.UID] = employee
 	}
 	return employeeList, nil
+}
+
+func (c *ClientFreeIpa) CheckUser(username string) (*string, bool, error) {
+	var isAdmin bool
+
+	res, err := c.con.UserShow(&freeipa.UserShowArgs{}, &freeipa.UserShowOptionalArgs{UID: freeipa.String(username)})
+
+	if err != nil {
+		if ipaE, ok := err.(*freeipa.Error); ok {
+			log.Printf("FreeIPA error %v: %v\n", ipaE.Code, ipaE.Message)
+			if ipaE.Code == freeipa.NotFoundCode {
+				log.Println("(matched expected error code)")
+			}
+		} else {
+			log.Printf("Other error: %v", err)
+		}
+		return nil, false, err
+	}
+
+	userGroups := res.Result.MemberofGroup
+
+	for _, group := range *userGroups {
+		if strings.Contains(group, "admins") {
+			isAdmin = true
+			break
+		}
+
+	}
+
+	return &res.Result.UID, isAdmin, err
 }
