@@ -1,0 +1,51 @@
+{{ template "header.html" .}}
+
+
+      <div class="container-sm">
+        <table id="myTable" class="table table-bordered border-dark table-hover">
+
+          {{ if .actors }}
+              <tbody>
+                <tr class="table-active table-dark ">
+                  <th scope="col">Hostname
+                    <svg class="bi" width="32" height="32" fill="currentColor">
+                      <use xlink:href="/images/svg/bootstrap-icons.svg#pc-display"/>
+                    </svg>
+                  </th>
+                  <th scope="col">State</th>
+                  <th scope="col">Uptime
+                    <svg class="bi" width="32" height="32" fill="currentColor">
+                      <use xlink:href="/images/svg/bootstrap-icons.svg#alarm"/>
+                    </svg>
+                  </th>
+                  <th scope="col">CPU 
+                    <svg class="bi" width="32" height="32" fill="currentColor">
+                      <use xlink:href="/images/svg/bootstrap-icons.svg#cpu"/>
+                    </svg>
+                  </th>
+                  <th scope="col">RAM 
+                    <svg class="bi" width="32" height="32" fill="currentColor">
+                      <use xlink:href="/images/svg/bootstrap-icons.svg#memory"/>
+                    </svg>
+                  </th>
+                </tr>
+          {{ else }}
+              <div> List actors is empty </div>
+          {{ end }}
+
+          {{if .isAdmin}}
+                <tr>
+          {{range .actors }}
+                  <td>{{.Hostname}}</td>
+                  <td>{{.State}}</td>
+                  <td>{{.Uptime}}</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+          {{end}}
+        </table>
+
+        {{ end }}
+
+{{ template "footer.html" .}}

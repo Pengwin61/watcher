@@ -35,6 +35,7 @@ func ManageSession(x2gosession map[string]*connectors.User,
 	}
 
 	ShowSession(&personsSession)
+	ShowServers()
 
 	return err
 }

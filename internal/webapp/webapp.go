@@ -98,7 +98,7 @@ func RunHandlers(r *gin.Engine) {
 	})
 
 	// sessions
-	// r.GET("/actors", middleware.RequireAuth, statusActors)
+	r.GET("/actors", middleware.RequireAuth, statusActors)
 	r.GET("/sessions", middleware.RequireAuth, statusUsers)
 	r.GET("/sessions/terminate/:id", controllers.TerminateSession)
 
@@ -124,17 +124,17 @@ func statusUsers(c *gin.Context) {
 	})
 }
 
-// func statusActors(c *gin.Context) {
+func statusActors(c *gin.Context) {
 
-// 	user, _ := c.Get("username")
-// 	isAuthorized := c.GetBool("isAuthorized")
-// 	isAdmin := c.GetBool("isAdmin")
+	user, _ := c.Get("username")
+	isAuthorized := c.GetBool("isAuthorized")
+	isAdmin := c.GetBool("isAdmin")
 
-// 	c.HTML(http.StatusOK, "actors.html", gin.H{
-// 		"title":        "Users Sessions",
-// 		"username":     user,
-// 		"isAuthorized": isAuthorized,
-// 		"isAdmin":      isAdmin,
-// 		"actors":       core.GetServerView(),
-// 	})
-// }
+	c.HTML(http.StatusOK, "actors.html", gin.H{
+		"title":        "Users Sessions",
+		"username":     user,
+		"isAuthorized": isAuthorized,
+		"isAdmin":      isAdmin,
+		"actors":       core.GetServerView(),
+	})
+}
