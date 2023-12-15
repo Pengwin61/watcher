@@ -1,6 +1,3 @@
-param: test1
-
-secret_key: 123
 
 schedule:
   interval: 1m
@@ -17,9 +14,10 @@ database:
   engine: postgres
 
 web:
-  port: 7777
-  ssl_cert: ./localhost.pem
-  ssl_key: ./localhost-key.pem
+  port: 443
+  ssl:
+    key: ./localhost-key.pem
+    cert: ./localhost.pem
 
 paths:
   home_dir: ./test_env/home/
@@ -41,3 +39,6 @@ freeIpa:
 userQuota:
   soft: 1G
   hard: 1G
+
+jwt:
+  secret: 123

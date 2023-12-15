@@ -74,10 +74,17 @@ func InitGin() {
 
 	gin.SetMode(gin.ReleaseMode)
 
-	// gin.SetMode(gin.DebugMode)
-	err := r.Run(fmt.Sprint("0.0.0.0:", viper.GetInt("web.port")))
-	if err != nil {
-		panic(err)
+	if viper.GetString("web.port") == "443" {
+		err := r.RunTLS(":443", viper.GetString("web.ssl.cert"), viper.GetString("web.ssl.key"))
+		if err != nil {
+			panic(err)
+		}
+
+	} else {
+		err := r.Run(fmt.Sprint(":", viper.GetString("web.port")))
+		if err != nil {
+			panic(err)
+		}
 	}
 
 }
