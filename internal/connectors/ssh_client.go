@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -14,12 +15,12 @@ type Client struct {
 	con *ssh.ClientConfig
 }
 
-func NewClient(username, password string) (*Client, error) {
+func NewClient() (*Client, error) {
 
 	config := &ssh.ClientConfig{
-		User: username,
+		User: viper.GetString("ssh.username"),
 		Auth: []ssh.AuthMethod{
-			ssh.Password(password),
+			ssh.Password(viper.GetString("ssh.password")),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}

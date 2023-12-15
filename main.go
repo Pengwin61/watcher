@@ -13,22 +13,23 @@ import (
 //
 
 func main() {
+
 	errCh := make(chan error)
 
-	params := configs.InitConfigs()
+	// params := configs.InitConfigs()
+	configs.InitConfigsViper()
 
-	logfile := logs.InitLogs(params.Paths.Logs)
+	logfile := logs.InitLogs()
 	defer logfile.CloseFile()
 
-	err := connections.InitConnections(params.FreeIPA.Host, params.FreeIPA.User, params.FreeIPA.Pass,
-		params.Servers.User, params.Servers.Pass)
+	err := connections.InitConnections()
 	if err != nil {
 		log.Fatalf("can`t create client: %s", err)
 	}
 
 	defer connections.Conn.Database.CloseDB()
 
-	go watch.RunWatcher(params, errCh)
+	go watch.RunWatcher(errCh)
 
 	go func() {
 		for err := range errCh {

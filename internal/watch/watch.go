@@ -5,10 +5,11 @@ import (
 	"strings"
 	"time"
 
-	"watcher/internal/configs"
 	"watcher/internal/connections"
 	"watcher/internal/connectors"
 	"watcher/internal/core"
+
+	"github.com/spf13/viper"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 	cmdListActor   = "uds_actortoken"
 )
 
-func RunWatcher(params configs.Params, errCh chan error) error {
+func RunWatcher(errCh chan error) error {
 
 	defer close(errCh)
 
@@ -29,13 +30,13 @@ func RunWatcher(params configs.Params, errCh chan error) error {
 			// log.Fatalf("can not get list actors: %s", err.Error())
 		}
 
-		groupsList, err := connections.Conn.IPA.GetGroups(params.FreeIPA.Group)
+		groupsList, err := connections.Conn.IPA.GetGroups(viper.GetString("freeIpa.master_group"))
 		if err != nil {
 			errCh <- err
 			// log.Printf("can not get groups list in FreeIPA; err: %s", err.Error())
 		}
 
-		err = core.CreateRootDirectory(params.Paths.Home, groupsList)
+		err = core.CreateRootDirectory(viper.GetString("paths.home_dir"), groupsList)
 		if err != nil {
 			errCh <- err
 			// log.Printf("can not create root directory; err: %s", err.Error())
@@ -57,13 +58,13 @@ func RunWatcher(params configs.Params, errCh chan error) error {
 					// log.Printf("can not get user list ID; err: %s", err.Error())
 				}
 
-				err = core.CreateUserDirectory(params.Paths.Home, group, usersList, userListID)
+				err = core.CreateUserDirectory(viper.GetString("paths.home_dir"), group, usersList, userListID)
 				if err != nil {
 					errCh <- err
 					// log.Printf("can not create directory; err: %s", err.Error())
 				}
 
-				folderList, err := core.FindHomeFolder(params.Paths.Home, group)
+				folderList, err := core.FindHomeFolder(viper.GetString("paths.home_dir"), group)
 				if err != nil {
 					errCh <- err
 					// log.Printf("can not get list folder; err:%s", err)
@@ -71,7 +72,7 @@ func RunWatcher(params configs.Params, errCh chan error) error {
 
 				diffListFolder := core.DiffDirectory(folderList, usersList)
 				if diffListFolder != nil {
-					err := core.DeleteFolders(params.Paths.Home, group, diffListFolder)
+					err := core.DeleteFolders(viper.GetString("paths.home_dir"), group, diffListFolder)
 					if err != nil {
 						errCh <- err
 						// log.Printf("can not delete folder; err:%s", err)
@@ -81,7 +82,7 @@ func RunWatcher(params configs.Params, errCh chan error) error {
 			}
 
 			/* Удаление папки */
-			err = core.DirExpired(params.Paths.Home, group, params.DaysRotation, usersList)
+			err = core.DirExpired(viper.GetString("paths.home_dir"), group, viper.GetString("schedule.home_dir_day_rotation"), usersList)
 			if err != nil {
 				errCh <- err
 				// log.Printf("can not delete directory; err: %s", err.Error())
@@ -91,7 +92,8 @@ func RunWatcher(params configs.Params, errCh chan error) error {
 		sshstdout := connections.Conn.SSH.GetSessionX2go(cmdListSession, actorsList)
 		if sshstdout == "" {
 			core.ShowSession(nil)
-			time.Sleep(params.Schedule)
+			// time.Sleep(params.Schedule)
+			time.Sleep(viper.GetDuration("schedule.interval"))
 		}
 
 		x2gosession, err := connectors.ParseSession(sshstdout)
@@ -108,12 +110,12 @@ func RunWatcher(params configs.Params, errCh chan error) error {
 			// log.Fatalf("can not; err: %s", err.Error())
 		}
 
-		err = core.ManageSession(x2gosession, udssession, params.TimeExpiration)
+		err = core.ManageSession(x2gosession, udssession, viper.GetDuration("schedule.time_expiration_session"))
 		if err != nil {
 			errCh <- err
 			// log.Fatalf("can not; err: %s", err.Error())
 		}
 
-		time.Sleep(params.Schedule)
+		time.Sleep(viper.GetDuration("schedule.interval"))
 	}
 }

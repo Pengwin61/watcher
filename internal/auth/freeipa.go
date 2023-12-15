@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ccin2p3/go-freeipa/freeipa"
+	"github.com/spf13/viper"
 )
 
 type Employee struct {
@@ -19,8 +20,8 @@ type ClientFreeIpa struct {
 	con *freeipa.Client
 }
 
-func NewClient(ipaHost, ipaUser, ipaPassword string) (*ClientFreeIpa, error) {
-	conn, err := ConIpa(ipaHost, ipaUser, ipaPassword)
+func NewClient() (*ClientFreeIpa, error) {
+	conn, err := ConIpa()
 
 	if err != nil {
 		return nil, err
@@ -28,12 +29,15 @@ func NewClient(ipaHost, ipaUser, ipaPassword string) (*ClientFreeIpa, error) {
 	return &ClientFreeIpa{con: conn}, nil
 }
 
-func ConIpa(ipaHost, ipaUser, ipaPasswd string) (*freeipa.Client, error) {
+func ConIpa() (*freeipa.Client, error) {
 
 	tspt := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	c, err := freeipa.Connect(ipaHost, tspt, ipaUser, ipaPasswd)
+
+	c, err := freeipa.Connect(viper.GetString("freeIpa.host"), tspt,
+		viper.GetString("freeIpa.username"), viper.GetString("freeIpa.password"))
+
 	if err != nil {
 		return nil, err
 	}

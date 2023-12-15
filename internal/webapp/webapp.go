@@ -8,6 +8,7 @@ import (
 	"watcher/internal/webapp/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 // type Client struct {
@@ -71,11 +72,13 @@ func InitGin() {
 
 	RunHandlers(r)
 
-	err := r.Run(":7777")
+	gin.SetMode(gin.ReleaseMode)
+
+	// gin.SetMode(gin.DebugMode)
+	err := r.Run(fmt.Sprint("0.0.0.0:", viper.GetInt("web.port")))
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Server is running on port 7777")
 
 }
 

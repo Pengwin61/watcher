@@ -2,13 +2,13 @@ package controllers
 
 import (
 	"net/http"
-	"os"
 	"watcher/internal/connections"
 
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"github.com/spf13/viper"
 )
 
 func Login(c *gin.Context) {
@@ -17,7 +17,6 @@ func Login(c *gin.Context) {
 	pass := c.PostForm("password")
 
 	ok := connections.Conn.LDAP.CheckUser(username, pass)
-	// connections.Conn.LDAP.
 	if !ok {
 		c.HTML(http.StatusUnauthorized, "unauthorized.html", gin.H{})
 	}
@@ -34,7 +33,7 @@ func Login(c *gin.Context) {
 		"isAdmin":  isAdmin,
 	})
 
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
+	tokenString, err := token.SignedString([]byte(viper.GetString("jwt.secret")))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to generate token",

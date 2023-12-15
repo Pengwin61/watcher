@@ -3,13 +3,13 @@ package middleware
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 	"watcher/internal/connections"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"github.com/spf13/viper"
 )
 
 func RequireAuth(c *gin.Context) {
@@ -26,7 +26,7 @@ func RequireAuth(c *gin.Context) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
-			return []byte(os.Getenv("SECRET")), nil
+			return []byte(viper.GetString("jwt.secret")), nil
 		})
 		if err != nil {
 			c.HTML(http.StatusUnauthorized, "unauthorized.html", gin.H{

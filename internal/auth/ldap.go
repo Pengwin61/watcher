@@ -5,13 +5,12 @@ import (
 	"log"
 
 	"github.com/go-ldap/ldap/v3"
+	"github.com/spf13/viper"
 )
 
 const (
-	HOST   = "ipa.pengwin.local"
 	DOMAIN = "pengwin"
 	DC     = "local"
-	PORT   = "389"
 )
 
 type ClientLdap struct {
@@ -21,7 +20,7 @@ type ClientLdap struct {
 func NewLdapClient() (*ClientLdap, error) {
 
 	// Подключение к серверу LDAP
-	c, err := ldap.Dial("tcp", HOST+":"+PORT)
+	c, err := ldap.Dial("tcp", viper.GetString("freeIpa.host")+":"+viper.GetString("freeIpa.port"))
 	if err != nil {
 		log.Println("Ошибка подключения к серверу FreeIPA:", err)
 		return nil, err

@@ -4,15 +4,17 @@ import (
 	"io"
 	"log"
 	"os"
+
+	"github.com/spf13/viper"
 )
 
 type LogFile struct {
 	file *os.File
 }
 
-func InitLogs(path string) *LogFile {
+func InitLogs() *LogFile {
 
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(viper.GetString("paths.logs"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}

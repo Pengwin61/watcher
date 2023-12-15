@@ -5,3 +5,4 @@ settings.cfg
 *.pem
 __*
 /test_env
+config/config.yaml

@@ -13,28 +13,26 @@ type Connections struct {
 	LDAP     *auth.ClientLdap
 }
 
-const (
-	HOST   = "ipa.pengwin.local"
-	DOMAIN = "pengwin"
-	DC     = "local"
-	PORT   = "389"
-)
-
 var Conn *Connections
 
-func InitConnections(ipaHost, ipaUser, ipaPass, srvUser, srvPass string) error {
+func InitConnections() error {
 	var err error
 
-	Conn, err = getConnections(ipaHost, ipaUser, ipaPass, srvUser, srvPass)
+	Conn, err = getConnections()
 	if err != nil {
 		return err
 	}
 	return err
 }
 
-func getConnections(ipaHost, ipaUser, ipaPass, srvUser, srvPass string) (*Connections, error) {
+func getConnections() (*Connections, error) {
 
-	conIpa, err := auth.NewClient(ipaHost, ipaUser, ipaPass)
+	conIpa, err := auth.NewClient()
+	if err != nil {
+		return nil, err
+	}
+
+	conLdap, err := auth.NewLdapClient()
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +42,7 @@ func getConnections(ipaHost, ipaUser, ipaPass, srvUser, srvPass string) (*Connec
 		return nil, err
 	}
 
-	conSSH, err := connectors.NewClient(srvUser, srvPass)
-	if err != nil {
-		return nil, err
-	}
-
-	conLdap, err := auth.NewLdapClient()
+	conSSH, err := connectors.NewClient()
 	if err != nil {
 		return nil, err
 	}
