@@ -16,18 +16,14 @@ func main() {
 
 	errCh := make(chan error)
 
-	// params := configs.InitConfigs()
 	configs.InitConfigsViper()
 
 	logfile := logs.InitLogs()
-	defer logfile.CloseFile()
 
 	err := connections.InitConnections()
 	if err != nil {
 		log.Fatalf("can`t create client: %s", err)
 	}
-
-	defer connections.Conn.Database.CloseDB()
 
 	go watch.RunWatcher(errCh)
 
@@ -43,4 +39,6 @@ func main() {
 
 	webapp.InitGin()
 
+	defer logfile.CloseFile()
+	defer connections.Conn.Database.CloseDB()
 }

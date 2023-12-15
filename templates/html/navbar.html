@@ -11,10 +11,10 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/home">Home 🏠</a>
+            <a class="nav-link active" aria-current="page" href="/home">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true">Lock🔒</a>
+            <a class="nav-link disabled" aria-disabled="true">Lock</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -34,6 +34,7 @@
           <h4> 
               <p>Вы вошли как, {{.username}}</p>
           </h4>
+         
       </div>
       {{else}}
         <form action="/login" method="POST" class="d-flex" role="login">
@@ -44,18 +45,11 @@
             <input type="password" id="inputPassword5" class="form-control" name="password" placeholder="password" aria-describedby="passwordHelpBlock">
           </div>
           <div class="container-sm">
-            <!-- <a href="/sign" type="button" class="btn btn-info">sign in</a> -->
             <button type="submit" class="btn btn-primary btn-block">Login</button>
           </div>
           {{end}}
-  
-        </form>
-          <form action="/sign" method="POST" class="d-flex" role="sign">
-              <div class="container-sm">
-                <!-- <a href="/sign" type="button" class="btn btn-info">sign in</a> -->
-                <!-- <button type="submit" class="btn btn-primary btn-block">Sign</button> -->
-              </div>
-          </form>
       </div>
     </div>
   </nav>
+
+
