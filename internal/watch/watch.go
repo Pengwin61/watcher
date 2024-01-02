@@ -17,7 +17,7 @@ const (
 	cmdListActor   = "uds_actortoken"
 )
 
-func RunWatcher(errCh chan error) error {
+func RunWatcher(errCh chan error) {
 
 	defer close(errCh)
 
