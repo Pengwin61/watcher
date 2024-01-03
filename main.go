@@ -42,6 +42,10 @@ func main() {
 	// Running Web
 	go webapp.InitGin()
 
+	gracefulShutdown(logfile)
+}
+
+func gracefulShutdown(logfile *logs.LogFile) {
 	// Graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
