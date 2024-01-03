@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
@@ -60,22 +61,24 @@ func CreateUserDirectory(basePath, group string, users []string,
 			log.Printf("folder is created %s ", fullPathUser)
 		}
 	}
-	changeOwner(basePath, group, employeeList)
+	err = changeOwner(basePath, group, employeeList)
 
 	defer dir.Close()
 
 	return err
 }
 
-func changeOwner(basePath, group string, employeeList map[string]auth.Employee) {
+func changeOwner(basePath, group string, employeeList map[string]auth.Employee) error {
 
 	for username, value := range employeeList {
 		fullPath := filepath.Join(basePath, group, username)
 		err := os.Chown(fullPath, value.UidNumber, value.GuidNumber)
 		if err != nil {
-			log.Println("can not change owner folder:", err)
+			err = errors.New("err: " + "can not change owner folder: " + err.Error())
+			return err
 		}
 	}
+	return nil
 }
 
 func DirExpired(basePath, group, daysRotation string, usersList []string) error {
