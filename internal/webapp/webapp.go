@@ -32,7 +32,7 @@ func InitGin() {
 		}
 
 	} else {
-		err := r.Run(fmt.Sprint(":", viper.GetString("web.port")))
+		err := r.Run(fmt.Sprint(":", "80"))
 		if err != nil {
 			panic(err)
 		}
