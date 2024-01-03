@@ -4,3 +4,5 @@
 settings.cfg
 *.pem
 __*
+test_env/logs/watcher.log
+config/config.yaml
