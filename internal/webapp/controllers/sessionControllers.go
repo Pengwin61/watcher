@@ -6,6 +6,7 @@ import (
 	"strings"
 	"watcher/internal/connections"
 	"watcher/internal/core"
+	"watcher/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +28,7 @@ func TerminateSession(c *gin.Context) {
 				log.Println(err)
 			}
 
-			core.SetUserView(core.RemoveSlice(core.GetUsersView(), k))
+			core.SetUserView(utils.RemoveSlice(core.GetUsersView(), k))
 		}
 	}
 

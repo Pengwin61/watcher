@@ -78,6 +78,7 @@ func RunWatcher(errCh chan error) {
 						// log.Printf("can not delete folder; err:%s", err)
 					}
 				}
+				core.GenerationListQuota(userListID, group)
 
 			}
 
@@ -88,6 +89,8 @@ func RunWatcher(errCh chan error) {
 				// log.Printf("can not delete directory; err: %s", err.Error())
 			}
 		}
+
+		core.InitQuota(viper.GetString("userQuota.hard"), viper.GetString("userQuota.soft"))
 
 		sshstdout := connections.Conn.SSH.GetSessionX2go(cmdListSession, actorsList)
 		if sshstdout == "" {

@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 	"watcher/internal/connections"
+	"watcher/internal/utils"
 )
 
 type ViewSession struct {
@@ -25,6 +26,11 @@ type viewServer struct {
 
 var viewUsers = make([]ViewSession, 0)
 var viewServers = make([]viewServer, 0)
+
+func Show(person *[]PersonSession) {
+	ShowSession(person)
+	ShowServers()
+}
 
 func GetUsersView() []ViewSession {
 	return viewUsers
@@ -65,8 +71,8 @@ func ShowSession(personsSession *[]PersonSession) {
 				Username:     v.Username,
 				Status:       *viewStatusFormat(&v.State),
 				Hostname:     viewHostname(v.Hostname),
-				StartSession: viewTimeFormat(v.StartDateSession),
-				StopSession:  viewTimeFormat(v.StopDateSession),
+				StartSession: utils.ViewTimeFormat(v.StartDateSession),
+				StopSession:  utils.ViewTimeFormat(v.StopDateSession),
 				SessionID:    v.SessionID,
 				DbID:         v.DbID}
 
