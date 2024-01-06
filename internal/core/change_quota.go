@@ -2,7 +2,6 @@ package core
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -15,7 +14,7 @@ import (
 type TempUser struct {
 	Username    string
 	ProjectName string
-	Gid         int
+	ProjectID   int
 }
 
 const (
@@ -24,8 +23,8 @@ const (
 	PATH_PROJECT    string = "./test_env/etc/projects"
 	PATH_PROJECT_ID string = "./test_env/etc/projid"
 
-	TMPL_PROJECT    string = "{{.Gid}}:/export/{{.ProjectName}}/{{.Username}}\n"
-	TMPL_PROJECT_ID string = "{{.ProjectName}}_{{.Username}}:{{.Gid}}\n"
+	TMPL_PROJECT    string = "{{.ProjectName}}:/export/{{.ProjectName}}/{{.Username}}\n"
+	TMPL_PROJECT_ID string = "{{.ProjectName}}_{{.Username}}:{{.ProjectName}}\n"
 )
 
 var data = make([]TempUser, 0)
@@ -33,7 +32,7 @@ var count = 0
 
 var fsType = ""
 var fileExists = false
-var fsInit = false
+var fileIsEmpty = true
 
 func InitQuota(hard, soft string) error {
 	var err error
@@ -43,7 +42,7 @@ func InitQuota(hard, soft string) error {
 		fsType = utils.CheckFS(PATH_ROOT_QUOTA)
 		log.Printf("current filesystem type [%s] mount path: %s", fsType, PATH_ROOT_QUOTA)
 		fsType = "xfs"
-		fsInit = true
+
 		list, fileExists, err = checkProjectFile()
 		if err != nil {
 			return err
@@ -51,19 +50,14 @@ func InitQuota(hard, soft string) error {
 	}
 
 	if fileExists && fsType == "xfs" {
-		if !fsInit {
-			preparingQuotaFile()
-		}
-
+		preparingQuotaFile()
+		defaultQuotaXFS(list)
 		for _, projname := range data {
 			err := setQuotaXFS(hard, projname.ProjectName)
 			if err != nil {
 				return err
 			}
 		}
-	} else {
-		fmt.Println("default xfs")
-		defaultQuotaXFS(list)
 	}
 
 	if fsType == "ext4" {
@@ -82,7 +76,12 @@ func preparingQuotaFile() {
 		PATH_PROJECT_ID: TMPL_PROJECT_ID,
 	}
 
-	log.Printf("files is created %s, %s\n", PATH_PROJECT, PATH_PROJECT_ID)
+	if !fileIsEmpty {
+		log.Printf("files is created %s, %s\n", PATH_PROJECT, PATH_PROJECT_ID)
+	} else {
+		log.Printf("files is edit %s, %s\n", PATH_PROJECT, PATH_PROJECT_ID)
+	}
+
 	for path, tmpl := range projects {
 		createQuotaFile(path, tmpl)
 	}
@@ -94,7 +93,7 @@ func GenerationListQuota(userListID map[string]auth.Employee, group string) {
 
 		tmp := &TempUser{
 			Username:    v.Username,
-			Gid:         count,
+			ProjectID:   count,
 			ProjectName: group,
 		}
 		data = append(data, *tmp)
@@ -188,13 +187,13 @@ func checkProjectFile() (list []string, ok bool, err error) {
 
 	list = parseFile(f)
 	if len(list) == 0 {
+		fileIsEmpty = true
 		return nil, false, err
 	}
 	return list, true, err
 }
 
-func parseFile(file *os.File) []string {
-	var list []string
+func parseFile(file *os.File) (list []string) {
 
 	scanner := bufio.NewScanner(file)
 	// Читаем файл построчно
