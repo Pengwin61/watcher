@@ -2,8 +2,10 @@ package core
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 	"watcher/internal/auth"
 	"watcher/internal/utils"
@@ -141,16 +143,16 @@ func defaultQuotaXFS(list []string) (ok bool, err error) {
 }
 
 func setQuotaXFS(bhard, project string) error {
-	// command := "xfs_quota"
-	// arg0 := "-x"
-	// arg1 := "-c"
+	command := "xfs_quota"
+	arg0 := "-x"
+	arg1 := "-c"
 
-	// cmd := exec.Command(command, arg0, arg1, fmt.Sprintf("limit -p bhard=%s %s", bhard, project), PATH_ROOT_QUOTA)
-	// log.Printf("User %s has a quota applied %s \n", project, bhard)
-	// err := cmd.Run()
-	// if err != nil {
-	// 	return err
-	// }
+	cmd := exec.Command(command, arg0, arg1, fmt.Sprintf("limit -p bhard=%s %s", bhard, project), PATH_ROOT_QUOTA)
+	log.Printf("User %s has a quota applied %s \n", project, bhard)
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
 	log.Printf("quota %s for project %s is set %s", fsType, project, bhard)
 	return nil
 
@@ -160,10 +162,10 @@ func setQuotaEXT4() error {
 
 	for _, users := range data {
 
-		// _, err := exec.Command("setquota", "-u", users.Username, viper.GetString("userQuota.soft"), viper.GetString("userQuota.hard"), "0", "0", "/").Output()
-		// if err != nil {
-		// 	return err
-		// }
+		_, err := exec.Command("setquota", "-u", users.Username, viper.GetString("userQuota.soft"), viper.GetString("userQuota.hard"), "0", "0", "/").Output()
+		if err != nil {
+			return err
+		}
 		log.Printf("user quota ext4 for %s is set hard:%s, soft:%s", users.Username, viper.GetString("userQuota.hard"), viper.GetString("userQuota.soft"))
 	}
 	return nil
