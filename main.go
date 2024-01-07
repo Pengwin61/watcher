@@ -1,68 +1,61 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
-	"time"
-	"watcher/configs"
-	"watcher/watch"
-	"watcher/webapp"
+	"os/signal"
+	"syscall"
+	"watcher/internal/configs"
+	"watcher/internal/connections"
+
+	"watcher/internal/logs"
+	"watcher/internal/watch"
+	"watcher/internal/webapp"
+
+	"github.com/spf13/viper"
 )
+
+//
 
 func main() {
 
-	params := configs.InitConfigs()
+	errCh := make(chan error)
 
-	/*
-	   Logging
-	*/
-	f, err := os.OpenFile(params.PathLogs, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	configs.InitConfigsViper()
+
+	logfile := logs.InitLogs()
+
+	err := connections.InitConnections()
 	if err != nil {
-		log.Fatalf("error opening file: %v", err)
+		log.Fatalf("can`t create client: %s", err)
 	}
-	defer f.Close()
-	wrt := io.MultiWriter(os.Stdout, f)
-	log.SetOutput(wrt)
 
-	/*
+	go watch.RunWatcher(errCh)
 
+	// Read logs
+	go func() {
+		for err := range errCh {
+			log.Println(err)
+		}
+	}()
 
+	// Running Web
+	go webapp.InitGin()
 
+	gracefulShutdown(logfile)
+}
 
+func gracefulShutdown(logfile *logs.LogFile) {
+	// Graceful shutdown
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	sign := <-stop
 
+	log.Println("stopping application:", sign)
 
-	 */
+	log.Println("closing logfile:", viper.GetString("paths.logs"))
+	defer logfile.CloseFile()
 
-	go watch.RunWatcher(params)
-
-	app := new(webapp.Application)
-	app.Auth.Username = params.WebUser
-	app.Auth.Password = params.WebPass
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/status", app.BasicAuth(app.ProtectedHandler))
-	// mux.HandleFunc("/", app.UnprotectedHandler)
-
-	fs := http.FileServer(http.Dir("templates"))
-	mux.Handle("/", fs)
-
-	//
-	//
-	//
-	srv := &http.Server{
-		Addr:         fmt.Sprint("0.0.0.0:", params.WebPort),
-		Handler:      mux,
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
-	log.Printf("starting server on %s", srv.Addr)
-
-	err = srv.ListenAndServeTLS(params.SslPub, params.SslPriv)
-	if err != nil {
-		log.Printf("%s", err.Error())
-	}
+	log.Println("closing connections to database")
+	defer connections.Conn.Database.CloseDB()
 }

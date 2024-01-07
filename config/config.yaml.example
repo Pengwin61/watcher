@@ -1,0 +1,41 @@
+
+schedule:
+  interval: 1m
+  home_dir_day_rotation: 3
+  time_expiration_session: 24h
+
+database:
+  host: postgres.example.local
+  port: 5432
+  username: username
+  password: 12345
+  name: dbname
+  engine: postgres
+
+web:
+  port: 443
+  ssl:
+    key: ./localhost-key.pem
+    cert: ./localhost.pem
+
+paths:
+  home_dir: ./test_env/home/
+  logs: ./test_env/logs/watcher.log
+
+ssh:
+  username: user
+  password: pass
+
+freeIpa:
+  host: ipa.example.local
+  port: 389
+  username: user
+  password: 12345
+  master_group: openuds_profiles
+
+userQuota:
+  soft: 1G
+  hard: 1G
+
+jwt:
+  secret: 123
